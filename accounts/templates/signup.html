@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System - Signup Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-200 min-h-screen flex items-center justify-center">
+    <!-- Signup Container -->
+    <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+        <!-- Left Side: Signup Form -->
+        <div class="p-8 md:p-12 space-y-6">
+            <h1 class="text-3xl font-bold text-gray-800 text-center">Create Your Account</h1>
+            <p class="text-sm text-center text-gray-600">Please fill in the details below to register.</p>
+
+            <!-- Signup Form -->
+            <form id="signupForm" action="{% url 'signup' %}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+
+                <!-- Step 1: Account Details -->
+                <div id="step1" class="step">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Step 1: Account Details</h2>
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username:</label>
+                        <input type="text" id="username" name="username" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
+                        <input type="password" id="password" name="password" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password:</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="button" onclick="goToStep(2)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">Next</button>
+                </div>
+
+                <!-- Step 2: Personal Details -->
+                <div id="step2" class="step hidden">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Step 2: Personal Details</h2>
+                    <div class="mb-4">
+                        <label for="first_name" class="block text-sm font-medium text-gray-700">First Name:</label>
+                        <input type="text" id="first_name" name="first_name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name:</label>
+                        <input type="text" id="last_name" name="last_name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="place" class="block text-sm font-medium text-gray-700">Place:</label>
+                        <input type="text" id="place" name="place" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth:</label>
+                        <input type="date" id="dob" name="dob" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
+                        <input type="email" id="email" name="email" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex justify-between">
+                        <button type="button" onclick="goToStep(1)" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">Back</button>
+                        <button type="button" onclick="goToStep(3)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: User Type & Additional Fields -->
+                <div id="step3" class="step hidden">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Step 3: User Type</h2>
+                    <div class="mb-4">
+                        <label for="user_type" class="block text-sm font-medium text-gray-700">User Type:</label>
+                        <select id="user_type" name="user_type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" onchange="toggleUserFields()">
+                            <option value="doctor">Doctor</option>
+                            <option value="patient">Patient</option>
+                            <option value="nurse">Nurse</option>
+                        </select>
+                    </div>
+                    <!-- Doctor Fields -->
+                    <div id="doctor-fields" class="user-fields mb-4 hidden">
+                        <div class="mb-4">
+                            <label for="doctor_phone" class="block text-sm font-medium text-gray-700">Phone Number:</label>
+                            <input type="tel" id="doctor_phone" name="doctor_phone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="specification" class="block text-sm font-medium text-gray-700">Specification:</label>
+                            <input type="text" id="specification" name="specification" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="experience" class="block text-sm font-medium text-gray-700">Experience (in years):</label>
+                            <input type="number" id="experience" name="experience" min="1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="certificate_file" class="block text-sm font-medium text-gray-700">Upload Certificate:</label>
+                            <input type="file" id="certificate_file" name="certificate_file" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <!-- Patient Fields -->
+                    <div id="patient-fields" class="user-fields mb-4 hidden">
+                        <div class="mb-4">
+                            <label for="patient_phone" class="block text-sm font-medium text-gray-700">Phone Number:</label>
+                            <input type="tel" id="patient_phone" name="patient_phone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <!-- Nurse Fields -->
+                    <div id="nurse-fields" class="user-fields mb-4 hidden">
+                        <div class="mb-4">
+                            <label for="nurse_phone" class="block text-sm font-medium text-gray-700">Phone Number:</label>
+                            <input type="tel" id="nurse_phone" name="nurse_phone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="shift" class="block text-sm font-medium text-gray-700">Shift (e.g., Morning, Evening, Night):</label>
+                            <input type="text" id="shift" name="shift" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <button type="button" onclick="goToStep(2)" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">Back</button>
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Side: Placeholder Images -->
+        <div class="hidden md:block relative bg-blue-500">
+            <img src="https://via.placeholder.com/500x800?text=Hospital+Image" alt="Hospital Image" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-center items-center text-white p-8">
+                <h2 class="text-3xl font-bold mb-4">Welcome to Our Hospital</h2>
+                <p class="text-lg text-center">Your health is our priority. Join us today!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function goToStep(step) {
+            currentStep = step;
+            // Toggle visibility of steps
+            document.querySelectorAll(".step").forEach((stepDiv, index) => {
+                stepDiv.classList.toggle("hidden", index + 1 !== step);
+            });
+            // Call toggleUserFields when switching to Step 3
+            if (step === 3) {
+                toggleUserFields();
+            }
+        }
+
+        function toggleUserFields() {
+            const userType = document.getElementById("user_type").value;
+            // Hide all user fields first
+            document.querySelectorAll(".user-fields").forEach((fieldGroup) => {
+                fieldGroup.classList.add("hidden"); // Hide all user fields
+            });
+            // Show the selected user type fields
+            const selectedFields = document.getElementById(`${userType}-fields`);
+            if (selectedFields) {
+                selectedFields.classList.remove("hidden"); // Show the selected user type fields
+            }
+            // Update required fields based on visibility
+            document.querySelectorAll(".user-fields input").forEach((input) => {
+                if (selectedFields && selectedFields.contains(input)) {
+                    input.setAttribute("required", "true");  // Make field required if visible
+                } else {
+                    input.removeAttribute("required");  // Remove required if hidden
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin Panel{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+<!-- Sidebar and Main Content -->
+<div class="flex h-screen">
+
+  <!-- Sidebar -->
+  <div class="w-64 bg-black text-white p-4">
+    <h2 class="text-2xl font-semibold mb-6 text-blue-400">Admin Panel</h2>
+    <ul class="space-y-2">
+      <li><a href="{% url 'doctor_dashboard' %}" class="block py-2 px-4 hover:bg-gray-800 rounded transition duration-300">Dashboard</a></li>
+      <li><a href="{% url 'doctor_availability' %}" class="block py-2 px-4 hover:bg-gray-800 rounded transition duration-300">Approve Doctors</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-black text-white p-4 flex justify-between items-center border-b border-gray-700">
+      <div class="text-xl font-semibold text-blue-400">Admin Dashboard</div>
+      <div>
+        <a href="{% url 'logout_user' %}" class="bg-red-700 hover:bg-red-600 text-white py-2 px-4 rounded transition duration-300">Log Out</a>
+      </div>
+    </nav>
+
+    <!-- Main Section -->
+    <div class="flex-1 p-8">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Management - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-200 min-h-screen flex items-center justify-center">
+  <div class="flex w-full max-w-4xl bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
+    <!-- Login Card -->
+    <div class="w-full md:w-1/2 p-6 sm:p-8">
+      <!-- Hospital Logo -->
+      <div class="flex justify-center mb-6">
+        <img src="https://via.placeholder.com/100" alt="Hospital Logo" class="h-16 w-auto">
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Welcome Back!</h1>
+      <p class="text-sm text-center text-gray-600 mb-6">Please log in to access your account.</p>
+
+      <!-- Error Messages -->
+      {% if messages %}
+        <div class="mb-4">
+          {% for message in messages %}
+            <p class="text-red-500 text-sm">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Login Form -->
+      <form method="POST" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Username Field -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400"
+            placeholder="Enter your username"
+            required>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400"
+            placeholder="Enter your password"
+            required>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200">
+          Log In
+        </button>
+      </form>
+
+      <!-- Additional Links -->
+      <div class="mt-6 text-center text-sm text-gray-600">
+        <p>Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign up</a></p>
+      </div>
+    </div>
+
+    <!-- Placeholder Images -->
+    <div class="hidden md:block md:w-1/2 bg-gray-100 p-6">
+      <div class="space-y-4">
+        <img src="https://via.placeholder.com/300x200" alt="Placeholder 1" class="w-full rounded-lg shadow-md">
+        <img src="https://via.placeholder.com/300x200" alt="Placeholder 2" class="w-full rounded-lg shadow-md">
+        <img src="https://via.placeholder.com/300x200" alt="Placeholder 3" class="w-full rounded-lg shadow-md">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

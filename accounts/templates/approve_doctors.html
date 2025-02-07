@@ -1,0 +1,95 @@
+{% extends "base/admin_base.html" %}
+
+{% block title %}Doctor Applications{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4">
+    <h1 class="text-3xl font-semibold text-center mb-8 text-white">Doctor Applications</h1>
+
+    <!-- Doctor Applications Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full table-auto bg-white border border-gray-200 rounded-lg shadow-md">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-medium">Doctor</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium">Specialization</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium">Experience</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium">Document</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctors %}
+                    <tr class="border-t hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ doctor.user.first_name }}{{ doctor.user.last_name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ doctor.specialization }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ doctor.experience }} years</td>
+                        <td class="px-6 py-4">
+                            {% if doctor.certificate_files %}
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded-lg"
+                                    onclick="openModal('{{ doctor.id }}')">
+                                    Manage
+                                </button>
+                            {% else %}
+                                <span class="text-gray-500">No document</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 space-y-2">
+                            <!-- Approve Button -->
+                            <form method="POST" action="{% url 'approve_doctor' doctor.id %}" class="inline-block">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg w-full md:w-auto">
+                                    Approve
+                                </button>
+                            </form>
+                            <!-- Reject Button -->
+                            <form method="POST" action="{% url 'reject_doctor' doctor.id %}" class="inline-block">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg w-full md:w-auto">
+                                    Reject
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Modal for Viewing Certificate -->
+                    {% if doctor.certificate_files %}
+                        <div id="viewCertificateModal-{{ doctor.id }}" class="fixed inset-0 flex items-center justify-center z-20 hidden">
+                            <div class="bg-gray-800 bg-opacity-50 absolute inset-0"></div>
+                            <div class="bg-white p-6 rounded-lg shadow-md relative">
+                                <h2 class="text-lg font-semibold text-gray-700 mb-4">Document Details</h2>
+
+                                <!-- Display the Document -->
+                                <div class="mt-4">
+                                    <p class="text-gray-700">{{ doctor.certificate_details }}</p>
+                                </div>
+
+                                <!-- Document URL Section -->
+                                <div class="mt-4 flex justify-end space-x-4">
+                                    <a href="{{ doctor.certificate_files.url }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                                        View & Download
+                                    </a>
+                                    <button onclick="closeModal('{{ doctor.id }}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Toggle Script -->
+<script>
+    function openModal(doctorId) {
+        document.getElementById('viewCertificateModal-' + doctorId).classList.remove('hidden');
+    }
+
+    function closeModal(doctorId) {
+        document.getElementById('viewCertificateModal-' + doctorId).classList.add('hidden');
+    }
+</script>
+{% endblock %}

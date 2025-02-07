@@ -235,22 +235,29 @@ def approved_doctors(request):
 
 @user_passes_test(is_admin, login_url='login')
 def deactivate_doctor(request, doctor_id):
-    """ View to deactivate a doctor (set is_approved to False) and send email """
-    try:
-        doctor = Profile.objects.get(id=doctor_id, user_type='doctor', is_approved=True)
-        doctor.is_approved = False  # Deactivate doctor
-        doctor.save()
+    """ 
+    View to deactivate a doctor (set is_approved to False) and send an email notification.
+    """
+    doctor = get_object_or_404(Doctor, id=doctor_id, is_approved=True)  # Fetch doctor instance
 
-        # Send deactivation email
-        subject = "Your Doctor Account Has Been Deactivated"
-        message = f"Dear {doctor.user.first_name},\n\nYour account has been deactivated by the admin. If you think this was a mistake, please contact support.\n\nBest regards,\nAdmin Team"
-        send_status_email(doctor.user.email, subject, message)
+    doctor.is_approved = False  # Deactivate doctor
+    doctor.save()  # Save the change
 
-        messages.success(request, f"Doctor {doctor.user.username} has been deactivated successfully.")
-    except Profile.DoesNotExist:
-        messages.error(request, "Doctor not found or already deactivated.")
+    # Send deactivation email
+    subject = "Your Doctor Account Has Been Deactivated"
+    message = f"""
+    Dear {doctor.user.first_name},
+
+    Your account has been deactivated by the admin. If you think this was a mistake, please contact support.
+
+    Best regards,
+    Admin Team
+    """
+    send_status_email(doctor.user.email, subject, message)  # Ensure this function is correctly implemented
+
+    messages.success(request, f"Doctor {doctor.user.username} has been deactivated successfully.")
     
-    return redirect('approved_doctors')
+    return redirect('approved_doctors')  # Redirect back to approved doctors list
 
 
 @user_passes_test(is_admin, login_url='login')

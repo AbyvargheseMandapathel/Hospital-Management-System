@@ -6,6 +6,17 @@
 <div class="max-w-7xl mx-auto py-8 px-4">
     <h1 class="text-3xl font-semibold text-center mb-8 text-white">Doctor Applications</h1>
 
+    <!-- MESSAGE SECTION -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-3 rounded-md {% if message.tags == 'success' %} bg-green-100 text-green-700 {% elif message.tags == 'error' %} bg-red-100 text-red-700 {% else %} bg-gray-100 text-black {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Doctor Applications Table -->
     <div class="overflow-x-auto">
         <table class="min-w-full table-auto bg-white border border-gray-200 rounded-lg shadow-md">
@@ -21,7 +32,7 @@
             <tbody>
                 {% for doctor in doctors %}
                     <tr class="border-t hover:bg-gray-50">
-                        <td class="px-6 py-4 text-sm text-gray-700">{{ doctor.user.first_name }}{{ doctor.user.last_name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ doctor.user.first_name }} {{ doctor.user.last_name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-700">{{ doctor.specialization }}</td>
                         <td class="px-6 py-4 text-sm text-gray-700">{{ doctor.experience }} years</td>
                         <td class="px-6 py-4">

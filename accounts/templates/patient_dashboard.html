@@ -1,85 +1,143 @@
+<!-- patient_dashboard.html -->
 {% extends "base/patient_base.html" %}
 
-{% block title %}
-Patient Dashboard
-{% endblock %}
+{% block title %}Patient Dashboard{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
-  <!-- Alerts Section -->
-  {% if messages %}
-    <div class="col-span-full bg-custom-dark p-4 mb-4 rounded-lg shadow-md border border-gray-700">
-      <div class="flex items-center mb-2">
-        <i class="fas fa-exclamation-circle text-yellow-400 mr-2"></i>
-        <h3 class="text-xl font-semibold text-gray-300">Alerts</h3>
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 fade-in p-4">
+  <!-- Main Content Area -->
+  <div class="lg:col-span-3 space-y-6">
+    <!-- Next Appointment Card -->
+    <div class="bg-custom-dark p-4 rounded-lg border border-gray-700">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-gray-300">Next Appointment</h2>
+        <a href="{% url 'book_appointment_flow' %}" class="text-blue-400 hover:text-blue-300 text-sm">
+          <i class="fas fa-plus mr-1"></i>Schedule New
+        </a>
       </div>
-      {% for message in messages %}
-        <p class="text-gray-400"><i class="fas fa-info-circle mr-2 text-blue-400"></i>{{ message }}</p>
-      {% endfor %}
+      
+      {% if next_appointment %}
+      <div class="bg-gray-800 p-4 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg text-white font-medium">
+              Dr. {{ next_appointment.doctor.user.get_full_name }}
+              <span class="text-gray-400 text-sm">({{ next_appointment.doctor.specialization }})</span>
+            </h3>
+            <p class="text-gray-400 mt-2">
+              <i class="fas fa-calendar-day mr-2"></i>
+              {{ next_appointment.date|date:"F j, Y" }}
+              <span class="mx-2">•</span>
+              <i class="fas fa-clock mr-2"></i>
+              {% if next_appointment.start_time %}
+                {{ next_appointment.start_time|time:"g:i A" }} - {{ next_appointment.end_time|time:"g:i A" }}
+              {% else %}
+                Time to be determined
+              {% endif %}
+            </p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-sm 
+            {% if next_appointment.status == 'Confirmed' %}bg-green-800 text-green-300
+            {% else %}bg-yellow-800 text-yellow-300{% endif %}">
+            {{ next_appointment.status }}
+          </span>
+        </div>
+      </div>
+      {% else %}
+      <div class="text-center py-6">
+        <p class="text-gray-400">No upcoming appointments scheduled</p>
+      </div>
+      {% endif %}
     </div>
-  {% endif %}
 
-  <!-- Card: Total Doctors -->
-  <div class="bg-custom-dark p-6 rounded-lg shadow-md border border-gray-700">
-    <div class="flex items-center mb-2">
-      <i class="fas fa-user-md text-custom-green mr-2"></i>
-      <h3 class="text-xl font-semibold text-gray-300">Total Doctors</h3>
+    <!-- Upcoming Appointments -->
+    <div class="bg-custom-dark rounded-lg border border-gray-700">
+      <div class="p-4 border-b border-gray-700">
+        <h3 class="text-lg font-semibold text-gray-300">Upcoming Appointments</h3>
+      </div>
+      <div class="p-4">
+        {% if upcoming_appointments %}
+          <div class="space-y-4">
+            {% for appointment in upcoming_appointments %}
+            <div class="bg-gray-800 p-4 rounded-lg hover:bg-gray-750 transition-colors">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-gray-300 font-medium">
+                    Dr. {{ appointment.doctor.user.get_full_name }}
+                    <span class="text-gray-400 text-sm">({{ appointment.doctor.specialization }})</span>
+                  </h4>
+                  <p class="text-sm text-gray-400 mt-1">
+                    <i class="fas fa-calendar-day mr-2"></i>
+                    {{ appointment.date|date:"M j, Y" }}
+                    <span class="mx-2">•</span>
+                    <i class="fas fa-clock mr-2"></i>
+                    {% if appointment.start_time %}
+                      {{ appointment.start_time|time:"g:i A" }}
+                    {% else %}
+                      Time TBD
+                    {% endif %}
+                  </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                  <span class="px-2 py-1 rounded-full text-sm 
+                    {% if appointment.status == 'Confirmed' %}bg-green-800 text-green-300
+                    {% else %}bg-yellow-800 text-yellow-300{% endif %}">
+                    {{ appointment.status }}
+                  </span>
+                  <div class="flex space-x-3">
+                    <a href="#" 
+                       class="text-blue-400 hover:text-blue-300" title="View Details">
+                      <i class="fas fa-info-circle"></i>
+                    </a>
+                    <form method="POST" action="#">
+                      {% csrf_token %}
+                      <button type="submit" class="text-red-400 hover:text-red-300" 
+                              title="Cancel Appointment"
+                              onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-6">
+            <p class="text-gray-400">No upcoming appointments found</p>
+            <a href="{% url 'book_appointment_flow' %}" 
+               class="mt-3 inline-block text-blue-400 hover:text-blue-300">
+              <i class="fas fa-plus mr-2"></i>Schedule an Appointment
+            </a>
+          </div>
+        {% endif %}
+      </div>
     </div>
-    <p class="text-3xl font-bold text-custom-green">{{ total_doctors }}</p>
   </div>
 
-  <!-- Card: Total Patients -->
-  <div class="bg-custom-dark p-6 rounded-lg shadow-md border border-gray-700">
-    <div class="flex items-center mb-2">
-      <i class="fas fa-procedures text-green-400 mr-2"></i>
-      <h3 class="text-xl font-semibold text-gray-300">Total Patients</h3>
+  <!-- Right Sidebar -->
+  <div class="lg:col-span-1 space-y-6">
+    <!-- Emergency Contacts -->
+    <div class="bg-custom-dark p-4 rounded-lg border border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-300 mb-4">Emergency Contacts</h3>
+      <div class="space-y-3">
+        <div class="bg-gray-800 p-3 rounded-lg">
+          <h4 class="text-gray-300 font-medium">Your Contact Number</h4>
+          <p class="text-blue-400 mt-1">{{ patient_phone }}</p>
+        </div>
+        <div class="bg-gray-800 p-3 rounded-lg">
+          <h4 class="text-gray-300 font-medium">24/7 Emergency</h4>
+          <p class="text-blue-400 mt-1">+1 (800) 123-4567</p>
+        </div>
+      </div>
     </div>
-    <p class="text-3xl font-bold text-green-400">{{ total_patients }}</p>
-  </div>
-
-  <!-- Card: Total Appointments -->
-  <div class="bg-custom-dark p-6 rounded-lg shadow-md border border-gray-700">
-    <div class="flex items-center mb-2">
-      <i class="fas fa-calendar-alt text-indigo-400 mr-2"></i>
-      <h3 class="text-xl font-semibold text-gray-300">Total Appointments</h3>
-    </div>
-    <p class="text-3xl font-bold text-indigo-400">{{ total_appointments }}</p>
-  </div>
-
-  <!-- Recent Appointments Table -->
-  <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-custom-dark p-6 rounded-lg shadow-md border border-gray-700">
-    <div class="flex items-center mb-4">
-      <i class="fas fa-clock text-gray-400 mr-2"></i>
-      <h3 class="text-xl font-semibold text-gray-300">Recent Appointments</h3>
-    </div>
-    <table class="w-full text-sm text-left text-gray-400">
-      <thead class="text-xs text-gray-500 uppercase bg-gray-800">
-        <tr>
-          <th scope="col" class="px-6 py-3">Patient Name</th>
-          <th scope="col" class="px-6 py-3">Doctor Name</th>
-          <th scope="col" class="px-6 py-3">Date</th>
-          <th scope="col" class="px-6 py-3">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for appointment in recent_appointments %}
-        <tr class="border-b hover:bg-gray-700">
-          <td class="px-6 py-4">{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</td>
-          <td class="px-6 py-4">{{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</td>
-          <td class="px-6 py-4">{{ appointment.date }}</td>
-          <td class="px-6 py-4">
-            <span class="px-2 py-1 rounded {% if appointment.status == 'Pending' %}bg-yellow-200 text-yellow-800{% elif appointment.status == 'Confirmed' %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}">
-              {{ appointment.status }}
-            </span>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="4" class="px-6 py-4 text-center text-gray-500">No recent appointments found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
   </div>
 </div>
+
+<style>
+.hover\:bg-gray-750:hover { background-color: #2d3748; }
+.fade-in { animation: fadeIn 0.3s ease-in; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
 {% endblock %}

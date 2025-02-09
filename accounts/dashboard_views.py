@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib.auth.decorators import login_required
 from .models import *  
 from datetime import date
@@ -17,18 +17,32 @@ def nurse_dashboard(request):
     return render(request, 'nurse_dashboard.html')
 
 
+# views.py
 @login_required
 def patient_dashboard(request):
-    # Check if the logged in user has a patient profile
     if not hasattr(request.user, 'patient'):
-        messages.error(request, "You are not authorized to access this page. Please log in as a patient.")
-        return redirect("login")  # Change "login" to the appropriate URL name if needed
+        messages.error(request, "You are not authorized to access this page.")
+        return redirect("login")
 
-    # Retrieve all appointments for the logged in patient
-    appointments = Appointment.objects.filter(patient=request.user.patient).order_by('-date', 'start_time')
+    patient = request.user.patient
+    now = timezone.now().date()
     
-    if not appointments.exists():
-        messages.info(request, "You have no appointments scheduled.")
+    # Next appointment (closest upcoming appointment)
+    next_appointment = Appointment.objects.filter(
+        patient=patient,
+        date__gte=now
+    ).order_by('date', 'start_time').first()
 
-    return render(request, 'patient_dashboard.html', {'appointments': appointments})
+    # Upcoming appointments (all future appointments)
+    upcoming_appointments = Appointment.objects.filter(
+        patient=patient,
+        date__gte=now
+    ).order_by('date', 'start_time')
+
+    context = {
+        'next_appointment': next_appointment,
+        'upcoming_appointments': upcoming_appointments,
+        'patient_phone': patient.phone_number,
+    }
+    return render(request, 'patient_dashboard.html', context)
 

@@ -16,6 +16,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from .forms import *
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 # Create your views here.
@@ -716,23 +717,29 @@ from datetime import datetime
 def doctors_view_patient(request):
     specialization = request.GET.get('specialization', '')
     name = request.GET.get('name', '')
-    day = request.GET.get('day', datetime.today().strftime('%A'))  # Default to today
+    day = request.GET.get('day', datetime.today().strftime('%A'))
     
-    # Filter doctors based on specialization and name
     doctors = Doctor.objects.filter(status='Approved', is_approved=True)
+    
     if specialization:
         doctors = doctors.filter(specialization__icontains=specialization)
     if name:
         doctors = doctors.filter(Q(user__first_name__icontains=name) | Q(user__last_name__icontains=name))
+    if day:
+        doctors = doctors.filter(availabilities__day=day).distinct()
+
+    paginator = Paginator(doctors, 3)
+    page = request.GET.get('page')
     
-    # Filter doctors based on availability
-    available_doctors = []
-    for doctor in doctors:
-        if DoctorAvailability.objects.filter(doctor=doctor, day=day).exists():
-            available_doctors.append(doctor)
-    
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
     context = {
-        'doctors': available_doctors,
+        'page_obj': page_obj,
         'specialization': specialization,
         'name': name,
         'day': day,

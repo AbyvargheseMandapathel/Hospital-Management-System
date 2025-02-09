@@ -7,8 +7,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from .utils import send_status_email
 from django.db.models import Q
+from datetime import time
+from .forms import *
+from django.utils.timezone import datetime, timedelta
+from django.http import HttpResponse
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from .forms import *
+
+
 # Create your views here.
 
+def home(request):
+    return render(request, 'home.html')
 
 User = get_user_model()  # Fetch the custom user model if defined
 def signup(request):
@@ -71,8 +84,8 @@ def signup(request):
                 doctor_phone = request.POST.get('doctor_phone')
                 print(doctor_phone,"hi ph")
 
-                specification = request.POST.get('specification')
-                print(specification,"hi spec")
+                specialization = request.POST.get('specialization')
+                print(specialization,"hi spec")
                 
                 experience = request.POST.get('experience')
                 print(experience,"hi exp")
@@ -83,7 +96,7 @@ def signup(request):
                 # If your model field is named 'certificate_files', pass it as such.
                 Doctor.objects.create(
                     user=user,
-                    specification=specification,
+                    specialization=specialization,
                     experience=experience,
                     phone_number=doctor_phone,
                     certificate_files=certificate_file
@@ -140,6 +153,59 @@ def logout_user(request):
     logout(request)
     return redirect('login')
 
+def password_reset_request(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        user = User.objects.filter(email=email).first()
+
+        if user:
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            reset_url = f"http://127.0.0.1:8000/password-reset-confirm/{uid}/{token}/"
+
+            # Send email
+            send_mail(
+                subject="Password Reset Request",
+                message=f"Click the link below to reset your password:\n{reset_url}",
+                from_email="your-email@gmail.com",
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+
+            messages.success(request, "A password reset link has been sent to your email.")
+        else:
+            messages.error(request, "No account found with this email.")
+
+        return redirect("password_reset")
+
+    return render(request, "password_reset.html")
+
+
+def password_reset_confirm(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (User.DoesNotExist, ValueError):
+        messages.error(request, "Invalid password reset link.")
+        return redirect("password_reset")
+
+    if not default_token_generator.check_token(user, token):
+        messages.error(request, "Password reset link has expired.")
+        return redirect("password_reset")
+
+    if request.method == "POST":
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if new_password == confirm_password:
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, "Your password has been successfully reset.")
+            return redirect("login")
+        else:
+            messages.error(request, "Passwords do not match.")
+
+    return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
 
 @login_required
 def admin_dashboard(request):
@@ -169,6 +235,9 @@ def admin_dashboard(request):
 def is_admin(user):
     return user.is_authenticated and user.user_type in ['admin']
 
+def is_doctor(user):
+    return user.is_authenticated and hasattr(user, 'doctor') and user.doctor.is_approved
+
 @user_passes_test(is_admin, login_url='login')
 def approve_doctors(request):
     """ View to fetch and display unapproved doctors """
@@ -183,6 +252,7 @@ def approve_doctor(request, doctor_id):
     try:
         doctor = get_object_or_404(Doctor, id=doctor_id, is_approved=False)
         doctor.is_approved = True  # Approve doctor
+        doctor.status = 'Approved'
         doctor.save()
 
         # Send approval email
@@ -206,8 +276,8 @@ def reject_doctor(request, doctor_id):
         subject = "Your Doctor Application Has Been Rejected"
         message = f"Dear {doctor.user.first_name},\n\nWe regret to inform you that your application as a doctor has been rejected. If you have any questions, please contact our support team.\n\nBest regards,\nAdmin Team"
         send_status_email(doctor.user.email, subject, message)
-
-        doctor.delete()  # Remove doctor profile
+        doctor.status = 'Rejected'
+        doctor.save()
         messages.success(request, f"Doctor {doctor.user.username} has been rejected and removed.")
     except Profile.DoesNotExist:
         messages.error(request, "Doctor not found or already rejected.")
@@ -241,6 +311,7 @@ def deactivate_doctor(request, doctor_id):
     doctor = get_object_or_404(Doctor, id=doctor_id, is_approved=True)  # Fetch doctor instance
 
     doctor.is_approved = False  # Deactivate doctor
+    doctor.status = "Pending" # Set status to pending
     doctor.save()  # Save the change
 
     # Send deactivation email
@@ -328,39 +399,301 @@ def update_appointment_status(request, appointment_id, new_status):
 
     return redirect('view_appointments')
 
-
 @login_required
 def doctor_availability(request):
-    """ View for doctors to set their availability """
+    doctor = request.user.doctor # Assuming `DoctorAvailability` has a ForeignKey to User
+
     if request.method == "POST":
-        selected_days = request.POST.getlist('days')  # Get selected days
-        start_time = request.POST.get('start_time')
-        end_time = request.POST.get('end_time')
+        form = DoctorAvailabilityForm(request.POST, doctor=doctor)
+        if form.is_valid():
+            availability = form.save(commit=False)
+            availability.doctor = doctor  # Ensure the doctor is assigned before saving
+            try:
+                availability.save()
+                return redirect('doctor_availability')  # Change this to the correct URL name
+            except ValidationError as e:
+                form.add_error(None, e)  # Show error message on form
 
-        if not selected_days or not start_time or not end_time:
-            messages.error(request, "Please select at least one day and provide valid time slots.")
-            return redirect('doctor_availability')
+    else:
+        form = DoctorAvailabilityForm(doctor=doctor)
 
-        # Remove existing availabilities for this doctor
-        DoctorAvailability.objects.filter(doctor=request.user).delete()
+    availabilities = DoctorAvailability.objects.filter(doctor=doctor)
 
-        # Save new availabilities
-        for day in selected_days:
-            DoctorAvailability.objects.create(
-                doctor=request.user,
-                day=day,
-                start_time=start_time,
-                end_time=end_time
-            )
+    return render(request, 'doctor_availability.html', {
+        'form': form,
+        'availabilities': availabilities
+    })
+@login_required
+def delete_availability(request, availability_id):
+    availability = get_object_or_404(DoctorAvailability, id=availability_id)
 
-        messages.success(request, "Availability updated successfully!")
+    # Ensure the logged-in user is the owner of the availability
+    if request.user.doctor != availability.doctor:
+        messages.error(request, "You do not have permission to delete this availability.")
         return redirect('doctor_availability')
 
-    # Fetch existing availability for the logged-in doctor
-    existing_availabilities = DoctorAvailability.objects.filter(doctor=request.user)
-    selected_days = [availability.day for availability in existing_availabilities]
+    availability.delete()
+    messages.success(request, "Availability deleted successfully.")
+    return redirect('doctor_availability')
+
+
+def update_appointment_status(request, appointment_id, new_status):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    # Allow patients to cancel their own appointments
+    if new_status == "Canceled" and appointment.patient.user != request.user and not request.user.is_staff:
+        messages.error(request, "You are not authorized to cancel this appointment.")
+        return redirect("view_appointments")
+
+    appointment.status = new_status
+    appointment.save()
     
-    return render(request, "doctor_availability.html", {
-        "selected_days": selected_days,
-        "existing_availabilities": existing_availabilities,
-    })
+    messages.success(request, f"Appointment has been {new_status.lower()}.")
+    return redirect("view_appointments")
+
+
+def book_appointment(patient, doctor, date):
+    """ Book a 30-minute appointment for the patient on a specific date """
+
+    # Get the day of the week
+    day_of_week = date.strftime('%A')  # E.g., 'Monday', 'Tuesday'
+
+    # Get doctor's availability for that day
+    availability = DoctorAvailability.objects.filter(doctor=doctor, day=day_of_week).first()
+
+    if not availability:
+        raise ValidationError("Doctor is off on this day. Please choose another day.")
+
+    # Find all existing appointments for that day
+    existing_appointments = Appointment.objects.filter(doctor=doctor, date=date).order_by('start_time')
+
+    # Start from the doctor's available time
+    current_start_time = availability.start_time
+
+    # Check for the first available slot
+    while current_start_time < availability.end_time:
+        # Calculate end time (30 minutes after start time)
+        current_end_time = (datetime.combine(date, current_start_time) + timedelta(minutes=30)).time()
+
+        # Check if this slot is occupied
+        overlapping_appointments = existing_appointments.filter(
+            start_time__lt=current_end_time,
+            end_time__gt=current_start_time
+        )
+
+        if not overlapping_appointments.exists():
+            # Found an available slot, create the appointment
+            appointment = Appointment.objects.create(
+                patient=patient,
+                doctor=doctor,
+                date=date,
+                start_time=current_start_time,
+                end_time=current_end_time,
+                status='Pending'
+            )
+            return appointment.appointment_id
+
+        # Move to the next 30-minute slot
+        current_start_time = current_end_time
+
+    # No available slots
+    raise ValidationError("No available slots for this day. Please choose another date.")
+
+
+def doctor_appointments_view(request):
+    """
+    Fetches appointments for the logged-in doctor with optional filtering by date, appointment_id, or admission_number.
+    """
+    if not request.user.is_authenticated:
+        return HttpResponse("User is not logged in")
+
+    if not hasattr(request.user, 'doctor'):
+        return HttpResponse("User is not a doctor")
+
+    doctor = request.user.doctor
+    date = request.GET.get('date')
+    appointment_id = request.GET.get('appointment_id')
+    admission_number = request.GET.get('admission_number')
+    
+    print("reached")
+
+    # Base query for the doctor's appointments
+    appointments = Appointment.objects.filter(doctor=doctor)
+    print(doctor)
+
+    # Apply filters if provided
+    if date:
+        appointments = appointments.filter(date=date)
+    if appointment_id:
+        appointments = appointments.filter(appointment_id=appointment_id)
+    if admission_number:
+        appointments = appointments.filter(patient__admission_number=admission_number)
+
+    # Order results by date and start time
+    appointments = appointments.order_by('date', 'start_time')
+    print(appointments)
+
+    return render(request, 'doctor_appointments.html', {'appointments': appointments})
+
+
+@user_passes_test(is_doctor)
+def update_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, appointment_id=appointment_id)
+
+    # Ensure only doctors can update status/comments
+    if request.user != appointment.doctor.user:
+        messages.error(request, "You are not authorized to update this appointment.")
+        return redirect('doctor_appointments')
+
+    if request.method == "POST":
+        new_status = request.POST.get("status")
+        new_comment = request.POST.get("comments")
+
+        if new_status in dict(Appointment.STATUS_CHOICES):
+            appointment.status = new_status
+
+        if new_comment:
+            appointment.advice = new_comment
+
+        appointment.save()
+        patient_email = appointment.patient.user.email
+        subject = "New Medical Advice for Your Appointment"
+        message = (
+                f"Dear {appointment.patient.user.first_name},\n\n"
+                f"Dr. {appointment.doctor.user.last_name} has added new advice/comments "
+                f"for your appointment on {appointment.date}.\n\n"
+                "Please log in to view the details.\n\n"
+                "Best regards,\nHospital Management Team"
+            )
+        send_mail(subject, message, 'noreply@hospital.com', [patient_email], fail_silently=False)
+        messages.success(request, "Appointment updated successfully!")
+        return redirect('doctor_appointment')
+
+    return render(request, "update_appointment.html", {"appointment": appointment})
+
+
+import datetime
+from django.core.exceptions import ValidationError
+from django.shortcuts import render, redirect
+
+import datetime
+from django.shortcuts import render, redirect
+from .models import Appointment, DoctorAvailability
+
+@login_required
+def book_appointment_flow(request):
+    if request.method == "POST":
+        step = request.POST.get("step")
+        if step == "1":
+            # Step 1: Patient selects a date and enters specialization.
+            form = AppointmentStep1Form(request.POST)
+            if form.is_valid():
+                selected_date = form.cleaned_data["date"]  # Date object
+                specialization = form.cleaned_data["specialization"]
+                # Convert the selected date into a weekday name (e.g., "Monday")
+                weekday = selected_date.strftime("%A")
+                # Filter availabilities where the doctor's specialization contains the entered text
+                availabilities = DoctorAvailability.objects.filter(
+                    day=weekday,
+                    doctor__specialization__icontains=specialization
+                )
+                if not availabilities.exists():
+                    form.add_error("date", f"No doctors available on {weekday} for specialization '{specialization}'.")
+                    return render(request, "book_appointment_flow.html", {"form": form, "step": 1})
+                # Pass the selected date as a string (YYYY-MM-DD) to the next step
+                context = {
+                    "step": 2,
+                    "availabilities": availabilities,
+                    "date": selected_date.strftime("%Y-%m-%d")
+                }
+                return render(request, "book_appointment_flow.html", context)
+            else:
+                return render(request, "book_appointment_flow.html", {"form": form, "step": 1})
+        
+        elif step == "2":
+            # Step 2: Patient selects a doctor and time slot.
+            doctor_id = request.POST.get("doctor_id")
+            availability_id = request.POST.get("availability_id")
+            selected_date = request.POST.get("date")  # in YYYY-MM-DD string format
+            if not (doctor_id and availability_id and selected_date):
+                return redirect("book_appointment_flow")
+            doctor = get_object_or_404(Doctor, id=doctor_id)
+            availability = get_object_or_404(DoctorAvailability, id=availability_id, doctor=doctor)
+            # Validate that the chosen date’s weekday matches the doctor's availability.
+            selected_weekday = datetime.datetime.strptime(selected_date, "%Y-%m-%d").strftime("%A")
+            if availability.day != selected_weekday:
+                error_message = f"Invalid date selection. Dr. {doctor.user.last_name} is available on {availability.day}."
+                availabilities = DoctorAvailability.objects.filter(day=selected_weekday, doctor=doctor)
+                return render(request, "book_appointment_flow.html", {
+                    "step": 2,
+                    "availabilities": availabilities,
+                    "date": selected_date,
+                    "error": error_message
+                })
+            # Proceed to Step 3.
+            form = AppointmentStep3Form()
+            context = {
+                "step": 3,
+                "doctor": doctor,
+                "availability": availability,
+                "date": selected_date,
+                "form": form
+            }
+            return render(request, "book_appointment_flow.html", context)
+        
+        elif step == "3":
+            # Step 3: Patient enters symptoms and additional notes.
+            form = AppointmentStep3Form(request.POST)
+            if form.is_valid():
+                doctor_id = request.POST.get("doctor_id")
+                availability_id = request.POST.get("availability_id")
+                selected_date = request.POST.get("date")
+                doctor = get_object_or_404(Doctor, id=doctor_id)
+                availability = get_object_or_404(DoctorAvailability, id=availability_id, doctor=doctor)
+                # Create the appointment
+                appointment  = Appointment.objects.create(
+                    patient=request.user.patient,
+                    doctor=doctor,
+                    date=selected_date,
+                    start_time=availability.start_time,
+                    end_time=availability.end_time,
+                    symptoms=form.cleaned_data["symptoms"],
+                    comments=form.cleaned_data["comments"],
+                    status="Pending"
+                )
+                return HttpResponse(appointment.appointment_id)
+            else:
+                doctor = get_object_or_404(Doctor, id=request.POST.get("doctor_id"))
+                availability = get_object_or_404(DoctorAvailability, id=request.POST.get("availability_id"), doctor=doctor)
+                context = {
+                    "step": 3,
+                    "doctor": doctor,
+                    "availability": availability,
+                    "date": request.POST.get("date"),
+                    "form": form
+                }
+                return render(request, "book_appointment_flow.html", context)
+    else:
+        form = AppointmentStep1Form()
+    return render(request, "book_appointment_flow.html", {"form": form, "step": 1})
+
+
+@login_required
+def view_doctor_comments(request, appointment_id):
+    """
+    Allows a patient (or the doctor) to view the doctor's advice/comments for an appointment.
+    Only the patient or the doctor involved in the appointment may view the comments.
+    """
+    appointment = get_object_or_404(Appointment, appointment_id=appointment_id)
+    
+    # Check that the user is either the patient or the doctor associated with this appointment.
+    if request.user != appointment.patient.user and request.user != appointment.doctor.user:
+        return HttpResponse("Unauthorized", status=401)
+    
+    return render(request, "view_comments.html", {"appointment": appointment})
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Appointment
+

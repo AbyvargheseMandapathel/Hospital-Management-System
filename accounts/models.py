@@ -1,5 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.core.exceptions import ValidationError
+import uuid
+from django.utils import timezone
+import datetime
+
+
 
 # Custom User Manager
 class CustomUserManager(BaseUserManager):
@@ -74,16 +80,24 @@ def generate_doctor_number():
 
 # Doctor model
 class Doctor(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
     user = models.OneToOneField('accounts.Profile', on_delete=models.CASCADE, related_name='doctor')
     phone_number = models.CharField(max_length=15)
     specialization = models.TextField()
     experience = models.PositiveIntegerField(help_text="Number of years of experience")
     certificate_files = models.FileField(upload_to='certificates/', blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
     is_approved = models.BooleanField(default=False)
     doctor_number = models.CharField(max_length=20, unique=True, editable=False)
 
     def __str__(self):
-        return f"Doctor: {self.user.first_name} {self.user.last_name}"
+        return f"Doctor: {self.user.first_name} {self.user.last_name} ({self.status})"
+
     
     def save(self, *args, **kwargs):
         if not self.doctor_number:
@@ -114,16 +128,64 @@ class Appointment(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('Confirmed', 'Confirmed'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
         ('Canceled', 'Canceled'),
     ]
 
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    appointment_id = models.CharField(max_length=50, unique=True, editable=False)
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE)
     date = models.DateField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    start_time = models.TimeField(null=True, blank=True, default=None)
+    end_time = models.TimeField(null=True, blank=True, default=None)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='Pending')
+    advice = models.TextField(blank=True, null=True)  # New field for medical advice
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    comments = models.CharField(max_length=1500)
+    symptoms = models.CharField(max_length=1500)
+
+    class Meta:
+        ordering = ['-date', 'start_time']
+        unique_together = ('doctor', 'date', 'start_time')
 
     def __str__(self):
-        return f"Appointment with {self.doctor} for {self.patient} on {self.date}"
+        start_time_str = self.start_time.strftime("%H:%M:%S") if self.start_time else "TBD"
+        end_time_str = self.end_time.strftime("%H:%M:%S") if self.end_time else "TBD"
+        return (f"Appointment {self.appointment_id} - Dr. {self.doctor.user.last_name} "
+                f"with {self.patient.user.first_name} on {self.date} from {start_time_str} to {end_time_str}")
+
+    def save(self, *args, **kwargs):
+        if not self.appointment_id:
+            self.appointment_id = self.generate_appointment_id()
+        # Ensure end_time is after start_time
+        if self.start_time and self.end_time and self.end_time <= self.start_time:
+            raise ValueError("End time must be after start time.")
+        super().save(*args, **kwargs)
+
+    def generate_appointment_id(self):
+    # Ensure self.date is a date object
+        if isinstance(self.date, str):
+            try:
+                self.date = datetime.datetime.strptime(self.date, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValidationError("Date format is invalid; expected YYYY-MM-DD.")
+        
+        # Get the count of appointments for the doctor on the same date
+        counter = Appointment.objects.filter(doctor=self.doctor, date=self.date).count() + 1
+        # Format the date as YYYYMMDD
+        date_str = self.date.strftime("%Y%m%d")
+        # Combine doctor_number, date, and counter
+        return f"{self.doctor.doctor_number}-{date_str}-{counter:03d}"
+
+    def is_upcoming(self):
+        now = timezone.now().date()
+        return self.date >= now
+
+    def is_past(self):
+        now = timezone.now().date()
+        return self.date < now
     
     
 class DoctorAvailability(models.Model):
@@ -137,7 +199,7 @@ class DoctorAvailability(models.Model):
         ('Sunday', 'Sunday'),
     ]
 
-    doctor = models.ForeignKey('accounts.Profile', on_delete=models.CASCADE, related_name='availabilities')
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='availabilities')
     day = models.CharField(max_length=10, choices=DAYS_OF_WEEK)
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -145,5 +207,25 @@ class DoctorAvailability(models.Model):
     class Meta:
         unique_together = ('doctor', 'day', 'start_time', 'end_time')
 
+    def clean(self):
+        """Ensure start time is before end time and prevent overlapping slots."""
+        if self.start_time >= self.end_time:
+            raise ValidationError("Start time must be before end time.")
+
+        # overlapping_availability = DoctorAvailability.objects.filter(
+        #     doctor=self.doctor,
+        #     day=self.day
+        # ).exclude(id=self.id).filter(
+        #     start_time__lt=self.end_time,
+        #     end_time__gt=self.start_time
+        # )
+
+        # if overlapping_availability.exists():
+        #     raise ValidationError("This time slot overlaps with an existing availability.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Run validations before saving
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.doctor.username} - {self.day}: {self.start_time} to {self.end_time}"
+        return f"{self.doctor.user.username} - {self.day}: {self.start_time} to {self.end_time}"

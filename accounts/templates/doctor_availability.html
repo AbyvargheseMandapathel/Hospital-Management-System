@@ -1,44 +1,46 @@
-{% extends "base/doctor_base.html" %}
+{% extends 'base/doctor_base.html' %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-    <h2 class="text-xl font-semibold text-gray-700 mb-4">Set Your Availability</h2>
-
-    {% if messages %}
-        {% for message in messages %}
-            <div class="p-3 mb-3 text-white {{ message.tags }} bg-green-500 rounded-md">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <form method="POST" class="space-y-4">
+<div class="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <h2 class="text-2xl font-bold mb-6 text-black">Update Availability</h2>
+    
+    <form method="post" class="space-y-4">
         {% csrf_token %}
+        {{ form.non_field_errors }}  <!-- Display non-field errors -->
 
-        <label class="block text-gray-700 font-medium">Select Days:</label>
-        <div class="grid grid-cols-3 gap-3">
-            {% for day, label in DoctorAvailability.DAYS_OF_WEEK %}
-            <label class="flex items-center space-x-2">
-                <input type="checkbox" name="days" value="{{ day }}" 
-                    class="rounded text-indigo-600 focus:ring-2 focus:ring-indigo-500"
-                    {% if day in selected_days %} checked {% endif %}>
-                <span class="text-gray-800">{{ label }}</span>
-            </label>
+        <div class="space-y-2">
+            {% for field in form %}
+                <div>
+                    <label class="block text-sm font-medium text-black">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
             {% endfor %}
         </div>
 
-        <div class="flex flex-col space-y-3">
-            <label class="block text-gray-700 font-medium">Start Time:</label>
-            <input type="time" name="start_time" required class="w-full p-2 border rounded-lg">
-
-            <label class="block text-gray-700 font-medium">End Time:</label>
-            <input type="time" name="end_time" required class="w-full p-2 border rounded-lg">
-        </div>
-
-        <button type="submit"
-            class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">
             Save Availability
         </button>
     </form>
+
+    <h3 class="text-xl font-semibold mt-8 mb-4 text-black">Current Availability</h3>
+
+    <ul class="space-y-3">
+        {% for availability in availabilities %}
+            <li class="flex justify-between items-center p-3 border border-gray-300 rounded-lg shadow-sm">
+                <span class="text-black font-medium">
+                    {{ availability.day }}: {{ availability.start_time }} - {{ availability.end_time }}
+                </span>
+                <a href="{% url 'delete_availability' availability.id %}" 
+                   class="text-red-600 hover:underline">
+                   Delete
+                </a>
+            </li>
+        {% empty %}
+            <p class="text-black text-sm">No availability added yet.</p>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}

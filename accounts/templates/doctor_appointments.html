@@ -1,0 +1,83 @@
+{% extends "base/doctor_base.html" %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-4 text-center">Doctor's Appointments</h2>
+
+    <!-- Filter Form -->
+    <form method="GET" class="bg-white p-4 rounded-lg shadow-md flex flex-wrap gap-4 items-center">
+        <div>
+            <label for="date" class="block text-gray-700">Date:</label>
+            <input type="date" name="date" value="{{ request.GET.date }}"
+                class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+        </div>
+
+        <div>
+            <label for="appointment_id" class="block text-gray-700">Appointment ID:</label>
+            <input type="text" name="appointment_id" value="{{ request.GET.appointment_id }}"
+                class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+        </div>
+
+        <div>
+            <label for="admission_number" class="block text-gray-700">Patient Admission Number:</label>
+            <input type="text" name="admission_number" value="{{ request.GET.admission_number }}"
+                class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+        </div>
+
+        <div class="flex gap-2">
+            <button type="submit"
+                class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">
+                Apply Filters
+            </button>
+            <a href="{% url 'doctor_appointment' %}"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-300">
+                Reset Filters
+            </a>
+        </div>
+    </form>
+
+    <!-- Appointments List -->
+    <div class="mt-6">
+        <table class="w-full border-collapse border border-gray-300 bg-white shadow-md rounded-lg text-black">
+            <thead>
+                <tr class="bg-blue-500 text-white">
+                    <th class="p-3">Appointment ID</th>
+                    <th class="p-3">Patient</th>
+                    <th class="p-3">Date</th>
+                    <th class="p-3">Time</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3">Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr class="border-b hover:bg-gray-100 transition duration-300">
+                    <td class="p-3 text-center">{{ appointment.appointment_id }}</td>
+                    <td class="p-3 text-center">{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</td>
+                    <td class="p-3 text-center">{{ appointment.date }}</td>
+                    <td class="p-3 text-center">{{ appointment.start_time }} - {{ appointment.end_time }}</td>
+                    <td class="p-3 text-center">
+                        <span class="px-3 py-1 rounded-full text-white 
+                            {% if appointment.status == 'Completed' %} bg-green-500
+                            {% elif appointment.status == 'Pending' %} bg-yellow-500
+                            {% else %} bg-red-500 {% endif %}">
+                            {{ appointment.status }}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <a href="{% url 'update_appointment' appointment.appointment_id %}"
+                            class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition duration-300">
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="p-3 text-center text-gray-500">No appointments found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

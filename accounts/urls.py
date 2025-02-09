@@ -8,6 +8,7 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
+    path('', home, name='home'),
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout_user'),
     path('signup/',signup,name = 'signup'),
@@ -30,8 +31,15 @@ urlpatterns = [
     path('appointments/', view_appointments, name='view_appointments'),
     path('appointments/update/<int:appointment_id>/<str:new_status>/', update_appointment_status, name='update_appointment_status'),
 
-    path("doctor-availability/", doctor_availability, name="doctor_availability"),
-
+    path('doctor/availability/', doctor_availability, name='doctor_availability'),
+    path('doctor/availability/delete/<int:availability_id>/', delete_availability, name='delete_availability'),
+    path('appointment/<int:appointment_id>/status/<str:new_status>/', update_appointment_status, name='update_appointment_status'),
+    path('doctor_appointments/', doctor_appointments_view, name='doctor_appointment'),
+    path('appointments/<str:appointment_id>/update/', update_appointment, name="update_appointment"),
+    path('password-reset/', password_reset_request, name='password_reset'),
+    path('password-reset-confirm/<uidb64>/<token>/', password_reset_confirm, name='password_reset_confirm'),
+    path('book_appointment/', book_appointment_flow, name='book_appointment_flow'),
+    path('appointment/<str:appointment_id>/view_comments/', view_doctor_comments, name="view_doctor_comments"),
 ]
 
 if settings.DEBUG:

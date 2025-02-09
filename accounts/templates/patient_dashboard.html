@@ -1,12 +1,11 @@
-<!-- patient_dashboard.html -->
 {% extends "base/patient_base.html" %}
 
 {% block title %}Patient Dashboard{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 fade-in p-4">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in p-4">
   <!-- Main Content Area -->
-  <div class="lg:col-span-3 space-y-6">
+  <div class="lg:col-span-2 space-y-6">
     <!-- Next Appointment Card -->
     <div class="bg-custom-dark p-4 rounded-lg border border-gray-700">
       <div class="flex items-center justify-between mb-4">
@@ -50,6 +49,14 @@
       {% endif %}
     </div>
 
+    <!-- Recent Vitals Card -->
+    <div class="bg-custom-dark p-4 rounded-lg border border-gray-700">
+      <h3 class="text-xl font-semibold text-gray-300 mb-4">Recent Vitals</h3>
+      <div class="text-center py-6">
+        <p class="text-gray-400">No vital records available</p>
+      </div>
+    </div>
+
     <!-- Upcoming Appointments -->
     <div class="bg-custom-dark rounded-lg border border-gray-700">
       <div class="p-4 border-b border-gray-700">
@@ -85,11 +92,11 @@
                     {{ appointment.status }}
                   </span>
                   <div class="flex space-x-3">
-                    <a href="#" 
+                    <a href="{% url 'appointment_detail' appointment.id %}" 
                        class="text-blue-400 hover:text-blue-300" title="View Details">
                       <i class="fas fa-info-circle"></i>
                     </a>
-                    <form method="POST" action="#">
+                    <form method="POST" action="{% url 'cancel_appointment' appointment.id %}">
                       {% csrf_token %}
                       <button type="submit" class="text-red-400 hover:text-red-300" 
                               title="Cancel Appointment"
@@ -112,24 +119,6 @@
             </a>
           </div>
         {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <!-- Right Sidebar -->
-  <div class="lg:col-span-1 space-y-6">
-    <!-- Emergency Contacts -->
-    <div class="bg-custom-dark p-4 rounded-lg border border-gray-700">
-      <h3 class="text-lg font-semibold text-gray-300 mb-4">Emergency Contacts</h3>
-      <div class="space-y-3">
-        <div class="bg-gray-800 p-3 rounded-lg">
-          <h4 class="text-gray-300 font-medium">Your Contact Number</h4>
-          <p class="text-blue-400 mt-1">{{ patient_phone }}</p>
-        </div>
-        <div class="bg-gray-800 p-3 rounded-lg">
-          <h4 class="text-gray-300 font-medium">24/7 Emergency</h4>
-          <p class="text-blue-400 mt-1">+1 (800) 123-4567</p>
-        </div>
       </div>
     </div>
   </div>

@@ -43,6 +43,9 @@ urlpatterns = [
     
     path("appointment-status/", appointment_status, name="appointment_status"),
     path("patients/doctors/", doctors_view_patient, name="doctors_view_patient"),
+    
+    path('appointment/<int:appointment_id>/', appointment_detail, name='appointment_detail'),
+    path('appointment/cancel/<int:appointment_id>/', cancel_appointment, name='cancel_appointment'),
 ]
 
 if settings.DEBUG:

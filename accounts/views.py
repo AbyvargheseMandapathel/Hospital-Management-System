@@ -584,98 +584,114 @@ from .models import Appointment, DoctorAvailability
 def book_appointment_flow(request):
     if request.method == "POST":
         step = request.POST.get("step")
+
         if step == "1":
-            # Step 1: Patient selects a date and enters specialization.
             form = AppointmentStep1Form(request.POST)
             if form.is_valid():
-                selected_date = form.cleaned_data["date"]  # Date object
+                selected_date = form.cleaned_data["date"]
                 specialization = form.cleaned_data["specialization"]
-                # Convert the selected date into a weekday name (e.g., "Monday")
                 weekday = selected_date.strftime("%A")
-                # Filter availabilities where the doctor's specialization contains the entered text
+
                 availabilities = DoctorAvailability.objects.filter(
                     day=weekday,
                     doctor__specialization__icontains=specialization
                 )
+
                 if not availabilities.exists():
                     form.add_error("date", f"No doctors available on {weekday} for specialization '{specialization}'.")
                     return render(request, "book_appointment_flow.html", {"form": form, "step": 1})
-                # Pass the selected date as a string (YYYY-MM-DD) to the next step
-                context = {
+
+                return render(request, "book_appointment.html", {
                     "step": 2,
                     "availabilities": availabilities,
                     "date": selected_date.strftime("%Y-%m-%d")
-                }
-                return render(request, "book_appointment_flow.html", context)
-            else:
-                return render(request, "book_appointment_flow.html", {"form": form, "step": 1})
-        
+                })
+
+            return render(request, "book_appointment.html", {"form": form, "step": 1})
+
         elif step == "2":
-            # Step 2: Patient selects a doctor and time slot.
             doctor_id = request.POST.get("doctor_id")
             availability_id = request.POST.get("availability_id")
-            selected_date = request.POST.get("date")  # in YYYY-MM-DD string format
+            selected_date = request.POST.get("date")
+
             if not (doctor_id and availability_id and selected_date):
                 return redirect("book_appointment_flow")
+
             doctor = get_object_or_404(Doctor, id=doctor_id)
             availability = get_object_or_404(DoctorAvailability, id=availability_id, doctor=doctor)
-            # Validate that the chosen date’s weekday matches the doctor's availability.
+
             selected_weekday = datetime.datetime.strptime(selected_date, "%Y-%m-%d").strftime("%A")
             if availability.day != selected_weekday:
                 error_message = f"Invalid date selection. Dr. {doctor.user.last_name} is available on {availability.day}."
-                availabilities = DoctorAvailability.objects.filter(day=selected_weekday, doctor=doctor)
-                return render(request, "book_appointment_flow.html", {
-                    "step": 2,
-                    "availabilities": availabilities,
-                    "date": selected_date,
-                    "error": error_message
-                })
-            # Proceed to Step 3.
-            form = AppointmentStep3Form()
-            context = {
+                return redirect(f"/appointment-status/?error={error_message}")
+
+            return render(request, "book_appointment.html", {
                 "step": 3,
                 "doctor": doctor,
                 "availability": availability,
                 "date": selected_date,
-                "form": form
-            }
-            return render(request, "book_appointment_flow.html", context)
-        
+                "form": AppointmentStep3Form()
+            })
+
         elif step == "3":
-            # Step 3: Patient enters symptoms and additional notes.
             form = AppointmentStep3Form(request.POST)
             if form.is_valid():
                 doctor_id = request.POST.get("doctor_id")
                 availability_id = request.POST.get("availability_id")
                 selected_date = request.POST.get("date")
+
                 doctor = get_object_or_404(Doctor, id=doctor_id)
                 availability = get_object_or_404(DoctorAvailability, id=availability_id, doctor=doctor)
-                # Create the appointment
-                appointment  = Appointment.objects.create(
-                    patient=request.user.patient,
+
+                existing_appointments = Appointment.objects.filter(
                     doctor=doctor,
-                    date=selected_date,
-                    start_time=availability.start_time,
-                    end_time=availability.end_time,
-                    symptoms=form.cleaned_data["symptoms"],
-                    comments=form.cleaned_data["comments"],
-                    status="Pending"
-                )
-                return HttpResponse(appointment.appointment_id)
-            else:
-                doctor = get_object_or_404(Doctor, id=request.POST.get("doctor_id"))
-                availability = get_object_or_404(DoctorAvailability, id=request.POST.get("availability_id"), doctor=doctor)
-                context = {
-                    "step": 3,
-                    "doctor": doctor,
-                    "availability": availability,
-                    "date": request.POST.get("date"),
-                    "form": form
-                }
-                return render(request, "book_appointment_flow.html", context)
-    else:
-        form = AppointmentStep1Form()
-    return render(request, "book_appointment_flow.html", {"form": form, "step": 1})
+                    date=selected_date
+                ).order_by("start_time")
+
+                current_time = availability.start_time
+                while current_time < availability.end_time:
+                    next_time = (datetime.datetime.combine(datetime.date.today(), current_time) + datetime.timedelta(minutes=30)).time()
+
+                    if not existing_appointments.filter(start_time=current_time).exists():
+                        appointment = Appointment.objects.create(
+                            patient=request.user.patient,
+                            doctor=doctor,
+                            date=selected_date,
+                            start_time=current_time,
+                            end_time=next_time,
+                            symptoms=form.cleaned_data["symptoms"],
+                            comments=form.cleaned_data["comments"],
+                            status="Pending"
+                        )
+                        return redirect(f"/appointment-status/?success=1&appointment_id={appointment.appointment_id}")
+
+                    current_time = next_time
+                    if current_time >= availability.end_time:
+                        break
+
+                return redirect("/appointment-status/?error=No available slots for the selected date.")
+
+    return render(request, "book_appointment.html", {"form": AppointmentStep1Form(), "step": 1})
+
+def appointment_status(request):
+    success = request.GET.get("success")
+    appointment_id = request.GET.get("appointment_id", "")
+    error_message = request.GET.get("error", "")
+
+    # Fetch the appointment details from the database
+    appointment = get_object_or_404(Appointment, appointment_id=appointment_id) if appointment_id else None
+
+    # Prepare the message if the appointment is successful
+    early_arrival_message = ""
+    if success and appointment:
+        early_arrival_message = f"Please arrive at least 30 minutes before your scheduled time at {appointment.start_time}."
+
+    return render(request, "appointment_status.html", {
+        "success": success,
+        "appointment": appointment,
+        "error_message": error_message,
+        "early_arrival_message": early_arrival_message,
+    })
 
 
 @login_required
@@ -692,8 +708,34 @@ def view_doctor_comments(request, appointment_id):
     
     return render(request, "view_comments.html", {"appointment": appointment})
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import Appointment
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Doctor, DoctorAvailability
+from datetime import datetime
+
+def doctors_view_patient(request):
+    specialization = request.GET.get('specialization', '')
+    name = request.GET.get('name', '')
+    day = request.GET.get('day', datetime.today().strftime('%A'))  # Default to today
+    
+    # Filter doctors based on specialization and name
+    doctors = Doctor.objects.filter(status='Approved', is_approved=True)
+    if specialization:
+        doctors = doctors.filter(specialization__icontains=specialization)
+    if name:
+        doctors = doctors.filter(Q(user__first_name__icontains=name) | Q(user__last_name__icontains=name))
+    
+    # Filter doctors based on availability
+    available_doctors = []
+    for doctor in doctors:
+        if DoctorAvailability.objects.filter(doctor=doctor, day=day).exists():
+            available_doctors.append(doctor)
+    
+    context = {
+        'doctors': available_doctors,
+        'specialization': specialization,
+        'name': name,
+        'day': day,
+    }
+    return render(request, 'doctors_list.html', context)
 

@@ -40,6 +40,9 @@ urlpatterns = [
     path('password-reset-confirm/<uidb64>/<token>/', password_reset_confirm, name='password_reset_confirm'),
     path('book_appointment/', book_appointment_flow, name='book_appointment_flow'),
     path('appointment/<str:appointment_id>/view_comments/', view_doctor_comments, name="view_doctor_comments"),
+    
+    path("appointment-status/", appointment_status, name="appointment_status"),
+    path("patients/doctors/", doctors_view_patient, name="doctors_view_patient"),
 ]
 
 if settings.DEBUG:

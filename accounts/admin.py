@@ -13,4 +13,5 @@ class AppointmentAdmin(admin.ModelAdmin):
 
 admin.site.register(Appointment, AppointmentAdmin)
 admin.site.register(DoctorAvailability)
+admin.site.register(VitalsRecord)
 

@@ -17,6 +17,8 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from .forms import *
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import joblib  # Import joblib for saving models
+from django.db.models import Count
 
 
 # Create your views here.
@@ -452,7 +454,7 @@ def update_appointment_status(request, appointment_id, new_status):
     messages.success(request, f"Appointment has been {new_status.lower()}.")
     return redirect("view_appointments")
 
-
+@login_required
 def book_appointment(patient, doctor, date):
     """ Book a 30-minute appointment for the patient on a specific date """
 
@@ -745,4 +747,220 @@ def doctors_view_patient(request):
         'day': day,
     }
     return render(request, 'doctors_list.html', context)
+
+
+def patient_appointments_view(request):
+    # Get the logged-in patient (assuming authentication is set up)
+    patient = get_object_or_404(Patient, user=request.user)
+
+    # Fetch all appointments for the patient
+    appointments = Appointment.objects.filter(patient=patient).order_by('-date', 'start_time')
+
+    # Filter logic based on query parameters
+    query = request.GET.get('query', '')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    status = request.GET.get('status')
+
+    if query:
+        appointments = appointments.filter(
+            Q(doctor__user__first_name__icontains=query) |
+            Q(doctor__user__last_name__icontains=query)
+        )
+    if start_date:
+        appointments = appointments.filter(date__gte=start_date)
+    if end_date:
+        appointments = appointments.filter(date__lte=end_date)
+    if status:
+        appointments = appointments.filter(status=status)
+
+    context = {
+        'appointments': appointments,
+        'query': query,
+        'start_date': start_date,
+        'end_date': end_date,
+        'status': status,
+    }
+
+    return render(request, 'patient_appointments.html', context)
+
+
+from django.http import JsonResponse
+from .predict import predict_disease
+import pandas as pd
+
+
+def predict_view(request):
+    symptoms = request.GET.get("symptoms", "")
+    if not symptoms:
+        return JsonResponse({"error": "No symptoms provided"}, status=400)
+
+    result = predict_disease(symptoms)
+    return JsonResponse(result)
+
+
+# Load trained models
+rf_model = joblib.load("models/rf_model.pkl")
+nb_model = joblib.load("models/nb_model.pkl")
+svm_model = joblib.load("models/svm_model.pkl")
+
+encoder = joblib.load("models/label_encoder.pkl")
+
+# Load dataset to get symptoms
+data = pd.read_csv("dataset.csv")
+symptoms_list = list(data.columns[:-1])  # Extract all symptom names
+
+@login_required
+def predict_page(request):
+    """Renders the HTML page with symptom selection."""
+    return render(request, "predict.html", {"symptoms": symptoms_list})
+
+@login_required
+def predict_disease(request):
+    """Predicts disease based on user symptoms."""
+    symptoms = request.GET.get("symptoms", "").split(",")
+    input_data = [1 if symptom in symptoms else 0 for symptom in symptoms_list]
+
+    rf_prediction = rf_model.predict([input_data])[0]
+    nb_prediction = nb_model.predict([input_data])[0]
+    svm_prediction = svm_model.predict([input_data])[0]
+
+    # Convert numerical labels back to disease names
+    rf_prediction_name = encoder.inverse_transform([rf_prediction])[0]
+    nb_prediction_name = encoder.inverse_transform([nb_prediction])[0]
+    svm_prediction_name = encoder.inverse_transform([svm_prediction])[0]
+
+    # Majority vote for final prediction
+    predictions = [rf_prediction_name, nb_prediction_name, svm_prediction_name]
+    final_prediction = max(set(predictions), key=predictions.count)
+
+    return JsonResponse({
+        "Final Prediction": final_prediction,
+        "Random Forest": rf_prediction_name,
+        "Naive Bayes": nb_prediction_name,
+        "SVM": svm_prediction_name,
+    })
+
+def doctor_appointments_view(request):
+    # Get the logged-in patient (assuming authentication is set up)
+    doctor = get_object_or_404(Doctor, user=request.user)
+
+    # Fetch all appointments for the patient
+    appointments = Appointment.objects.filter(doctor=doctor).order_by('-date', 'start_time')
+
+    # Filter logic based on query parameters
+    query = request.GET.get('query', '')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    status = request.GET.get('status')
+
+    if query:
+        appointments = appointments.filter(
+            Q(doctor__user__first_name__icontains=query) |
+            Q(doctor__user__last_name__icontains=query)
+        )
+    if start_date:
+        appointments = appointments.filter(date__gte=start_date)
+    if end_date:
+        appointments = appointments.filter(date__lte=end_date)
+    if status:
+        appointments = appointments.filter(status=status)
+
+    context = {
+        'appointments': appointments,
+        'query': query,
+        'start_date': start_date,
+        'end_date': end_date,
+        'status': status,
+    }
+
+    return render(request, 'doctor_appointments.html', context)
+
+
+@login_required
+def consulted_patients_list(request):
+    if not hasattr(request.user, 'doctor'):
+        return redirect('dashboard')  # Redirect unauthorized users
+
+    doctor = request.user.doctor
+    patients = Appointment.objects.filter(doctor=doctor).order_by('-date')
+
+    # Get distinct patients by grouping them
+    unique_patients = patients.values(
+        'patient__user__first_name',
+        'patient__user__last_name',
+        'patient__admission_number',
+        'patient_id'
+    ).annotate(appointment_count=Count('id'))
+
+    # Filtering
+    name_query = request.GET.get('name', '').strip()
+    admission_number_query = request.GET.get('admission_number', '').strip()
+
+    if name_query:
+        unique_patients = unique_patients.filter(
+            patient__user__first_name__icontains=name_query
+        ) | unique_patients.filter(
+            patient__user__last_name__icontains=name_query
+        )
+
+    if admission_number_query:
+        unique_patients = unique_patients.filter(
+            patient__admission_number__icontains=admission_number_query
+        )
+
+    context = {
+        'patients': unique_patients,
+        'name_query': name_query,
+        'admission_number_query': admission_number_query,
+    }
+    return render(request, 'consulted_patients.html', context)
+
+
+@login_required
+def patient_detail(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    appointments = Appointment.objects.filter(patient=patient).order_by('-date')
+
+    context = {
+        'patient': patient,
+        'appointments': appointments,
+    }
+    return render(request, 'patient_detail.html', context)
+
+
+@login_required
+def add_vitals(request, appointment_id):
+    """Allows the assigned nurse to add vitals for an appointment."""
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    # Ensure only the assigned nurse can add vitals
+    if request.user != appointment.nurse.user:
+        messages.error(request, "You are not authorized to add vitals for this appointment.")
+        return redirect("dashboard")  # Redirect to nurse dashboard
+
+    # Check if vitals already exist
+    vitals_record, created = VitalsRecord.objects.get_or_create(appointment=appointment)
+
+    if request.method == "POST":
+        form = VitalsRecordForm(request.POST, instance=vitals_record)
+        if form.is_valid():
+            vitals_record = form.save(commit=False)
+            vitals_record.nurse = appointment.nurse  # Auto-assign nurse
+            vitals_record.save()
+            messages.success(request, "Vitals recorded successfully!")
+            return redirect("appointment_detail", appointment_id=appointment.id)
+    else:
+        form = VitalsRecordForm(instance=vitals_record)
+
+    return render(request, "add_vitals.html", {"form": form, "appointment": appointment})
+
+
+@login_required
+def view_appointments_nurse(request):
+    """Displays all appointments assigned to the logged-in nurse."""
+    nurse = request.user.nurse  # Assuming `Nurse` model is related to `User`
+    appointments = Appointment.objects.filter(nurse=nurse).order_by('-date')
+
+    return render(request, "view_appointments_nurse.html", {"appointments": appointments})
 

@@ -113,10 +113,12 @@
       </h2>
       <nav class="flex-1">
         <ul class="space-y-2">
-          <li><a href="{% url 'admin_dashboard' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
+          <li><a href="{% url 'patient_dashboard' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
           <li><a href="{% url 'book_appointment_flow' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-user-md mr-2"></i> Book Appointment</a></li>
           <li><a href="{% url 'doctors_view_patient' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-users mr-2"></i> Browse Doctprs</a></li>
-          <li><a href="{% url 'view_appointments' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-alt mr-2"></i> Appointments</a></li>
+          <li><a href="{% url 'patient_appointments' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-alt mr-2"></i> Appointments</a></li>
+          <li><a href="{% url 'predict_page' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-alt mr-2"></i> Predict</a></li>
+
         </ul>
       </nav>
       <!-- User Profile (Fixed at Bottom) -->

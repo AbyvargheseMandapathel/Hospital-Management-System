@@ -7,14 +7,32 @@ from django.contrib import messages
 
 @login_required
 def doctor_dashboard(request):
-    if not hasattr(request.user, 'doctor') or not request.user.doctor.is_approved:
-        return render(request, 'error.html', {'message': 'Application not accepted by admin'})
+    if not hasattr(request.user, "doctor") or not request.user.doctor.is_approved:
+        return render(request, "error.html", {"message": "Application not accepted by admin"})
 
-    return render(request, 'doctor_dashboard.html')
+    doctor = request.user.doctor
+
+    total_appointments = Appointment.objects.filter(doctor=doctor).count()
+    upcoming_appointments = Appointment.objects.filter(doctor=doctor, status="Confirmed").count()
+    total_patients = Appointment.objects.filter(doctor=doctor).values("patient").distinct().count()
+
+    recent_appointments = Appointment.objects.filter(doctor=doctor).order_by("-date", "-start_time")[:5]
+
+    context = {
+        "doctor": doctor,
+        "total_appointments": total_appointments,
+        "upcoming_appointments": upcoming_appointments,
+        "total_patients": total_patients,
+        "recent_appointments": recent_appointments,
+    }
+
+    return render(request, "doctor_dashboard.html", context)
 
 @login_required
 def nurse_dashboard(request):
-    return render(request, 'nurse_dashboard.html')
+    """Displays the nurse's assigned appointments."""
+    appointments = Appointment.objects.filter(nurse=request.user.nurse)
+    return render(request, "nurse_dashboard.html", {"appointments": appointments})
 
 
 # views.py
@@ -48,19 +66,24 @@ def patient_dashboard(request):
 
 @login_required
 def appointment_detail(request, appointment_id):
-    # Ensure the user is a patient and owns the appointment
-    if not hasattr(request.user, 'patient'):
+    # Fetch the appointment object
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    # Authorization logic
+    if hasattr(request.user, 'patient') and request.user.patient == appointment.patient:
+        authorized = True
+    elif hasattr(request.user, 'doctor') and request.user.doctor == appointment.doctor:
+        authorized = True
+    elif hasattr(request.user, 'nurse') and request.user.nurse == appointment.nurse:
+        authorized = True
+    elif request.user.is_superuser:
+        authorized = True
+    else:
         messages.error(request, "You are not authorized to access this page.")
         return redirect("login")
 
-    appointment = get_object_or_404(
-        Appointment,
-        id=appointment_id,
-        patient=request.user.patient
-    )
-
     context = {
-        'appointment': appointment,
+        'appointment': appointment
     }
     return render(request, 'appointment_detail.html', context)
 
@@ -91,3 +114,23 @@ def cancel_appointment(request, appointment_id):
 
     return redirect('patient_dashboard')
 
+
+@login_required
+def vital_records_view(request, appointment_id):
+    """
+    View for doctors and nurses to see vital records of an appointment.
+    Only the assigned nurse and doctor can view the vitals.
+    """
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    
+    # Ensure that only the assigned doctor or nurse can view this
+    if request.user != appointment.doctor.user and request.user != appointment.nurse.user:
+        return render(request, "403.html", status=403)  # Forbidden access
+    
+    vitals = appointment.vitals  # Access related vitals using related_name
+
+    context = {
+        "appointment": appointment,
+        "vitals": vitals,
+    }
+    return render(request, "vital_records.html", context)

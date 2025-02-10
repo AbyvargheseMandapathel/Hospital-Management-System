@@ -86,3 +86,16 @@ class AppointmentStep3Form(forms.Form):
         }),
         required=False
     )
+    
+    
+class VitalsRecordForm(forms.ModelForm):
+    """Form for nurses to input patient vitals."""
+    class Meta:
+        model = VitalsRecord
+        fields = [
+            "sugar_level", "cholesterol_level", "blood_pressure_systolic", "blood_pressure_diastolic",
+            "heart_rate", "oxygen_saturation", "temperature", "notes"
+        ]
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 3, "class": "form-input"})
+        }

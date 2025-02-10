@@ -1,11 +1,55 @@
 {% extends "base/patient_base.html" %}
-
 {% block title %}Patient Dashboard{% endblock %}
-
 {% block content %}
+<style>
+.hover\:bg-gray-750:hover { background-color: #2d3748; }
+.fade-in { animation: fadeIn 0.3s ease-in; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Custom styles for recent vitals */
+.recent-vitals-card {
+  position: sticky;
+  top: 1rem;
+  background-color: #1a202c;
+  border: 1px solid #4a5568;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  height: fit-content;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+/* Custom styles for main content */
+.main-content {
+  overflow-y: auto;
+  height: calc(100vh - 2rem);
+}
+
+/* Custom colors for appointment statuses */
+.status-pending {
+  background-color: #eab308; /* Yellow */
+  color: #2d3748;
+}
+
+.status-confirmed {
+  background-color: #2f855a; /* Green */
+  color: #e6fffa;
+}
+
+.status-completed {
+  background-color: #3182ce; /* Blue */
+  color: #fff;
+}
+
+.status-canceled {
+  background-color: #e53e3e; /* Red */
+  color: #fff;
+}
+</style>
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in p-4">
   <!-- Main Content Area -->
-  <div class="lg:col-span-2 space-y-6">
+  <div class="lg:col-span-2 space-y-6 main-content">
     <!-- Next Appointment Card -->
     <div class="bg-custom-dark p-4 rounded-lg border border-gray-700">
       <div class="flex items-center justify-between mb-4">
@@ -36,8 +80,10 @@
             </p>
           </div>
           <span class="px-3 py-1 rounded-full text-sm 
-            {% if next_appointment.status == 'Confirmed' %}bg-green-800 text-green-300
-            {% else %}bg-yellow-800 text-yellow-300{% endif %}">
+            {% if next_appointment.status == 'Confirmed' %}status-confirmed
+            {% elif next_appointment.status == 'Pending' %}status-pending
+            {% elif next_appointment.status == 'Completed' %}status-completed
+            {% elif next_appointment.status == 'Canceled' %}status-canceled{% endif %}">
             {{ next_appointment.status }}
           </span>
         </div>
@@ -48,15 +94,6 @@
       </div>
       {% endif %}
     </div>
-
-    <!-- Recent Vitals Card -->
-    <div class="bg-custom-dark p-4 rounded-lg border border-gray-700">
-      <h3 class="text-xl font-semibold text-gray-300 mb-4">Recent Vitals</h3>
-      <div class="text-center py-6">
-        <p class="text-gray-400">No vital records available</p>
-      </div>
-    </div>
-
     <!-- Upcoming Appointments -->
     <div class="bg-custom-dark rounded-lg border border-gray-700">
       <div class="p-4 border-b border-gray-700">
@@ -87,13 +124,15 @@
                 </div>
                 <div class="flex items-center space-x-4">
                   <span class="px-2 py-1 rounded-full text-sm 
-                    {% if appointment.status == 'Confirmed' %}bg-green-800 text-green-300
-                    {% else %}bg-yellow-800 text-yellow-300{% endif %}">
+                    {% if appointment.status == 'Confirmed' %}status-confirmed
+                    {% elif appointment.status == 'Pending' %}status-pending
+                    {% elif appointment.status == 'Completed' %}status-completed
+                    {% elif appointment.status == 'Canceled' %}status-canceled{% endif %}">
                     {{ appointment.status }}
                   </span>
                   <div class="flex space-x-3">
                     <a href="{% url 'appointment_detail' appointment.id %}" 
-                       class="text-blue-400 hover:text-blue-300" title="View Details">
+                      class="text-blue-400 hover:text-blue-300" title="View Details">
                       <i class="fas fa-info-circle"></i>
                     </a>
                     <form method="POST" action="{% url 'cancel_appointment' appointment.id %}">
@@ -122,11 +161,16 @@
       </div>
     </div>
   </div>
+  
+  <!-- Right Sidebar -->
+  <div class="lg:col-span-1">
+    <!-- Recent Vitals Card -->
+    <div class="recent-vitals-card">
+      <h3 class="text-xl font-semibold text-gray-300 mb-4">Recent Vitals</h3>
+      <div class="text-center py-6">
+        <p class="text-gray-400">No vital records available</p>
+      </div>
+    </div>
+  </div>
 </div>
-
-<style>
-.hover\:bg-gray-750:hover { background-color: #2d3748; }
-.fade-in { animation: fadeIn 0.3s ease-in; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-</style>
 {% endblock %}

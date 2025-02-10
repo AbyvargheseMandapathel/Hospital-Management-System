@@ -1,3 +1,4 @@
+import random
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
@@ -128,7 +129,6 @@ class Appointment(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('Confirmed', 'Confirmed'),
-        ('In Progress', 'In Progress'),
         ('Completed', 'Completed'),
         ('Canceled', 'Canceled'),
     ]
@@ -136,11 +136,12 @@ class Appointment(models.Model):
     appointment_id = models.CharField(max_length=50, unique=True, editable=False)
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE)
+    nurse = models.ForeignKey('Nurse', on_delete=models.SET_NULL, null=True, blank=True)  # New field
     date = models.DateField()
     start_time = models.TimeField(null=True, blank=True, default=None)
     end_time = models.TimeField(null=True, blank=True, default=None)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='Pending')
-    advice = models.TextField(blank=True, null=True)  # New field for medical advice
+    advice = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     comments = models.CharField(max_length=1500)
@@ -161,22 +162,23 @@ class Appointment(models.Model):
             self.appointment_id = self.generate_appointment_id()
         # Ensure end_time is after start_time
         if self.start_time and self.end_time and self.end_time <= self.start_time:
-            raise ValueError("End time must be after start time.")
+            raise ValueError("End time must be after start_time.")
+
+        # Auto-assign a random nurse when status changes to Confirmed
+        if self.status == "Confirmed" and not self.nurse:
+            self.assign_random_nurse()
+
         super().save(*args, **kwargs)
 
     def generate_appointment_id(self):
-    # Ensure self.date is a date object
         if isinstance(self.date, str):
             try:
                 self.date = datetime.datetime.strptime(self.date, "%Y-%m-%d").date()
             except ValueError:
                 raise ValidationError("Date format is invalid; expected YYYY-MM-DD.")
-        
-        # Get the count of appointments for the doctor on the same date
+
         counter = Appointment.objects.filter(doctor=self.doctor, date=self.date).count() + 1
-        # Format the date as YYYYMMDD
         date_str = self.date.strftime("%Y%m%d")
-        # Combine doctor_number, date, and counter
         return f"{self.doctor.doctor_number}-{date_str}-{counter:03d}"
 
     def is_upcoming(self):
@@ -186,6 +188,12 @@ class Appointment(models.Model):
     def is_past(self):
         now = timezone.now().date()
         return self.date < now
+
+    def assign_random_nurse(self):
+        """Assign a random available nurse to this appointment."""
+        nurses = Nurse.objects.all()
+        if nurses.exists():
+            self.nurse = random.choice(nurses)
     
     
 class DoctorAvailability(models.Model):
@@ -229,3 +237,34 @@ class DoctorAvailability(models.Model):
 
     def __str__(self):
         return f"{self.doctor.user.username} - {self.day}: {self.start_time} to {self.end_time}"
+    
+    
+class VitalsRecord(models.Model):
+    """Model to store patient vitals recorded by the assigned nurse."""
+    appointment = models.OneToOneField(
+        'Appointment', on_delete=models.CASCADE, related_name="vitals"
+    )
+    nurse = models.ForeignKey('Nurse', on_delete=models.SET_NULL, null=True, blank=True)
+    sugar_level = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    cholesterol_level = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    blood_pressure_systolic = models.PositiveIntegerField(null=True, blank=True)
+    blood_pressure_diastolic = models.PositiveIntegerField(null=True, blank=True)
+    heart_rate = models.PositiveIntegerField(null=True, blank=True)
+    oxygen_saturation = models.PositiveIntegerField(null=True, blank=True)
+    temperature = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-recorded_at']
+
+    def __str__(self):
+        return f"Vitals for {self.appointment.patient.user.get_full_name()} on {self.recorded_at.strftime('%Y-%m-%d')}"
+
+    def save(self, *args, **kwargs):
+        """Ensure the nurse is the one assigned to the appointment."""
+        if self.appointment.nurse:
+            self.nurse = self.appointment.nurse  # Auto-assign nurse from appointment
+        else:
+            raise ValueError("Vitals can only be recorded if an appointment has an assigned nurse.")
+        super().save(*args, **kwargs)

@@ -2,31 +2,31 @@
 
 {% block content %}
 <div class="container mx-auto p-6">
-    <h2 class="text-2xl font-bold mb-4 text-center">Doctor's Appointments</h2>
+    <h2 class="text-2xl font-bold mb-4 text-center text-white">Doctor's Appointments</h2>
 
     <!-- Filter Form -->
-    <form method="GET" class="bg-white p-4 rounded-lg shadow-md flex flex-wrap gap-4 items-center">
+    <form method="GET" class="bg-gray-800 p-4 rounded-lg shadow-md flex flex-wrap gap-4 items-center">
         <div>
-            <label for="date" class="block text-gray-700">Date:</label>
+            <label for="date" class="block text-gray-300">Date:</label>
             <input type="date" name="date" value="{{ request.GET.date }}"
-                class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                class="border border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-black">
         </div>
 
         <div>
-            <label for="appointment_id" class="block text-gray-700">Appointment ID:</label>
+            <label for="appointment_id" class="block text-gray-300">Appointment ID:</label>
             <input type="text" name="appointment_id" value="{{ request.GET.appointment_id }}"
-                class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                class="border border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-black">
         </div>
 
         <div>
-            <label for="admission_number" class="block text-gray-700">Patient Admission Number:</label>
+            <label for="admission_number" class="block text-gray-300">Patient Admission Number:</label>
             <input type="text" name="admission_number" value="{{ request.GET.admission_number }}"
-                class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                class="border border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-black">
         </div>
 
         <div class="flex gap-2">
             <button type="submit"
-                class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">
+                class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-white hover:text-green-500 transition duration-300">
                 Apply Filters
             </button>
             <a href="{% url 'doctor_appointment' %}"
@@ -38,45 +38,54 @@
 
     <!-- Appointments List -->
     <div class="mt-6">
-        <table class="w-full border-collapse border border-gray-300 bg-white shadow-md rounded-lg text-black">
+        <table class="w-full border-collapse border border-gray-600 bg-gray-800 shadow-md rounded-lg text-white">
             <thead>
-                <tr class="bg-blue-500 text-white">
-                    <th class="p-3">Appointment ID</th>
-                    <th class="p-3">Patient</th>
-                    <th class="p-3">Date</th>
-                    <th class="p-3">Time</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3">Update</th>
+                <tr class="bg-gray-800 text-gray-400">
+                    <th class="px-4 py-2 border border-gray-600 text-left">ID</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Date</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Patient</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Doctor</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Status</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Vital Records</th>
                 </tr>
             </thead>
             <tbody>
                 {% for appointment in appointments %}
-                <tr class="border-b hover:bg-gray-100 transition duration-300">
-                    <td class="p-3 text-center">{{ appointment.appointment_id }}</td>
-                    <td class="p-3 text-center">{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</td>
-                    <td class="p-3 text-center">{{ appointment.date }}</td>
-                    <td class="p-3 text-center">{{ appointment.start_time }} - {{ appointment.end_time }}</td>
-                    <td class="p-3 text-center">
-                        <span class="px-3 py-1 rounded-full text-white 
-                            {% if appointment.status == 'Completed' %} bg-green-500
-                            {% elif appointment.status == 'Pending' %} bg-yellow-500
-                            {% else %} bg-red-500 {% endif %}">
+                <tr class="border border-gray-700 hover:bg-gray-700 text-gray-300">
+                    <td class="px-4 py-3 border border-gray-600">
+                        <a href="{% url 'appointment_detail' appointment.id %}" class="text-blue-400 hover:underline">
+                            {{ appointment.appointment_id }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-3 border border-gray-600">{{ appointment.date }}</td>
+                    <td class="px-4 py-3 border border-gray-600">
+                        {{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}
+                    </td>
+                    <td class="px-4 py-3 border border-gray-600">
+                        {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}
+                    </td>
+                    <td class="px-4 py-3 border border-gray-600">
+                        <span class="px-2 py-1 rounded-md text-white 
+                            {% if appointment.status == "Pending" %}bg-yellow-500
+                            {% elif appointment.status == "Confirmed" %}bg-green-500
+                            {% else %}bg-red-500{% endif %}">
                             {{ appointment.status }}
                         </span>
                     </td>
-                    <td class="p-3 text-center">
-                        <a href="{% url 'update_appointment' appointment.appointment_id %}"
-                            class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition duration-300">
-                            Edit
-                        </a>
+                    <td class="p-3 border border-gray-700 text-center">
+                        {% if appointment.vitals %}
+                            <a href="{% url 'vital_records' appointment.id %}" 
+                               class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                                View Details
+                            </a>
+                        {% else %}
+                            <span class="text-red-500">Not Added</span>
+                        {% endif %}
                     </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="p-3 text-center text-gray-500">No appointments found.</td>
+                    
                 </tr>
                 {% endfor %}
-            </tbody>
+            </tbody>            
         </table>
     </div>
 </div>

@@ -54,7 +54,7 @@
         </div>
       {% endif %}
       <!-- Signup Form -->
-      <form method="POST" class="space-y-4 fade-in" id="signupForm">
+      <form method="POST" enctype="multipart/form-data" class="space-y-4 fade-in" id="signupForm">
         {% csrf_token %}
         <!-- Step 1: Account Details -->
         <div id="step1" class="fade-in">
@@ -192,47 +192,9 @@
                 id="certificate"
                 class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
             </div>
-            <div>
-              <label for="shift" class="block text-sm font-medium text-gray-300">Shift (e.g., Morning, Evening, Night)</label>
-              <input
-                type="text"
-                name="shift"
-                id="shift"
-                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
-                placeholder="Enter your shift">
-            </div>
-          </div>
-          <div id="patientFields" class="hidden">
-            <!-- No additional fields for Patient -->
           </div>
           <div id="nurseFields" class="hidden">
             <div>
-              <label for="specification" class="block text-sm font-medium text-gray-300">Specification</label>
-              <input
-                type="text"
-                name="specification"
-                id="specification"
-                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
-                placeholder="Enter your specification">
-            </div>
-            <div>
-              <label for="experience" class="block text-sm font-medium text-gray-300">Experience (in years)</label>
-              <input
-                type="number"
-                name="experience"
-                id="experience"
-                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
-                placeholder="Enter your experience in years">
-            </div>
-            <div>
-              <label for="certificate" class="block text-sm font-medium text-gray-300">Upload Certificate</label>
-              <input
-                type="file"
-                name="certificate"
-                id="certificate"
-                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
-            </div>
-            <div>
               <label for="shift" class="block text-sm font-medium text-gray-300">Shift (e.g., Morning, Evening, Night)</label>
               <input
                 type="text"
@@ -241,16 +203,28 @@
                 class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
                 placeholder="Enter your shift">
             </div>
+            <div>
+              <label for="nurse_phone_number" class="block text-sm font-medium text-gray-300">Phone Number</label>
+              <input
+                type="tel"
+                name="phone_number"
+                id="nurse_phone_number"
+                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                placeholder="Enter your phone number"
+                required>
+            </div>
           </div>
-          <div>
-            <label for="phone_number" class="block text-sm font-medium text-gray-300">Phone Number</label>
-            <input
-              type="tel"
-              name="phone_number"
-              id="phone_number"
-              class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
-              placeholder="Enter your phone number"
-              required>
+          <div id="patientFields" class="hidden">
+            <div>
+              <label for="patient_phone_number" class="block text-sm font-medium text-gray-300">Phone Number</label>
+              <input
+                type="tel"
+                name="phone_number"
+                id="patient_phone_number"
+                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                placeholder="Enter your phone number"
+                required>
+            </div>
           </div>
           <div class="flex justify-between mt-6">
             <button type="button" class="bg-custom-green hover-custom-green text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200 fade-in" onclick="prevStep(3)">Back</button>

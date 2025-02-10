@@ -74,7 +74,7 @@ def signup(request):
             )
             print(user,"wow")
             # Handle user-type specific fields
-            if user_type == 'nurse':
+            if user_type == 'Nurse':
                 print(user_type,"nurse" )
                 # Use 'nurse_phone' from the form; pass it to the Nurse model as phone_number.
                 nurse_phone = request.POST.get('nurse_phone')
@@ -82,7 +82,7 @@ def signup(request):
                 shift = request.POST.get('shift')
                 Nurse.objects.create(user=user, phone_number=nurse_phone, shift=shift)
 
-            elif user_type == 'doctor':
+            elif user_type == 'Doctor':
                 # Use 'doctor_phone' from the form; pass it to the Doctor model as phone_number.
                 doctor_phone = request.POST.get('doctor_phone')
                 print(doctor_phone,"hi ph")
@@ -105,9 +105,9 @@ def signup(request):
                     certificate_files=certificate_file
                 )
 
-            elif user_type == 'patient':
+            elif user_type == 'Patient':
                 # Use 'patient_phone' from the form; pass it to the Patient model as phone_number.
-                patient_phone = request.POST.get('phone_number')
+                patient_phone = request.POST.get('patient_phone_number')
                 print(patient_phone,'this is pat ph')
 
                 Patient.objects.create(user=user, phone_number=patient_phone)

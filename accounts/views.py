@@ -36,7 +36,7 @@ def signup(request):
         last_name  = request.POST.get('last_name')
         email      = request.POST.get('email')
         place      = request.POST.get('place')
-        dob        = request.POST.get('dob')
+        dob        = request.POST.get('date_of_birth')
         user_type  = request.POST.get('user_type')
         
         # Print common fields to the terminal for debugging
@@ -107,7 +107,7 @@ def signup(request):
 
             elif user_type == 'patient':
                 # Use 'patient_phone' from the form; pass it to the Patient model as phone_number.
-                patient_phone = request.POST.get('patient_phone')
+                patient_phone = request.POST.get('phone_number')
                 print(patient_phone,'this is pat ph')
 
                 Patient.objects.create(user=user, phone_number=patient_phone)

@@ -1,0 +1,11 @@
+{% extends base_template %}
+
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-4 text-black">Doctor's Advice/Comments</h2>
+    <p class="mb-2"><strong>Appointment ID:</strong> {{ appointment.appointment_id }}</p>
+    <p class="mb-2"><strong>Doctor:</strong> Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</p>
+    <p class="mb-2"><strong>Date:</strong> {{ appointment.date }}</p>
+    <p class="mb-2"><strong>Time:</strong> {{ appointment.start_time }} - {{ appointment.end_time }}</p>
+    <div class="mt-4 p-4 border rounded-lg bg-gray-100 text-black">\n        <strong>Advice/Comments:</strong><br>\n        {% if appointment.advice %}\n            {{ appointment.advice }}\n        {% else %}\n            No advice has been provided yet.\n        {% endif %}\n    </div>\n</div>\n{% endblock %}"

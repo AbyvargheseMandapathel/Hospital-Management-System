@@ -1,0 +1,66 @@
+{% extends base_template %}
+
+{% block title %}Disease Prediction{% endblock %}
+{% block content %}
+<div class="container mx-auto bg-[#1a202c] text-white p-6 rounded-lg shadow-lg max-w-md">
+    <h2 class="text-center text-2xl font-bold mb-4">Disease Prediction</h2>
+    <p class="text-center text-gray-400 mb-6">Select symptoms to get a prediction</p>
+
+    <!-- Symptom Selection -->
+    <div class="mb-4">
+        <label for="symptoms" class="block text-gray-300 mb-2">Select Symptoms</label>
+        <select id="symptoms" class="form-select w-full bg-gray-800 border border-gray-700 text-gray-300 rounded-md py-2 px-3" multiple>
+            {% for symptom in symptoms %}
+                <option value="{{ symptom }}">{{ symptom }}</option>
+            {% endfor %}
+        </select>
+        <small class="block text-gray-400 mt-1">Hold Ctrl (Windows) or Cmd (Mac) to select multiple symptoms.</small>
+    </div>
+
+    <!-- Predict Button -->
+    <button id="predict-btn" class="btn btn-primary w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition-colors">
+        Predict Disease
+    </button>
+
+    <!-- Result Box -->
+    <div class="result hidden mt-6 p-4 bg-gray-800 rounded-md text-gray-300" id="result-box"></div>
+
+    <!-- Book Appointment Button -->
+    <div class="mt-6 text-center">
+        <a href="{% url 'book_appointment_flow' %}" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md inline-block transition-colors">
+            Book Appointment
+        </a>
+    </div>
+</div>
+
+{% comment %} <strong>Random Forest:</strong> ${data["Random Forest"]} <br>
+            <strong>Naive Bayes:</strong> ${data["Naive Bayes"]} <br>
+            <strong>SVM:</strong> ${data["SVM"]} {% endcomment %}
+
+<script>
+    document.getElementById("predict-btn").addEventListener("click", function () {
+        let selectedSymptoms = Array.from(document.getElementById("symptoms").selectedOptions).map(opt => opt.value);
+        if (selectedSymptoms.length === 0) {
+            alert("Please select at least one symptom.");
+            return;
+        }
+
+        let symptomsQuery = selectedSymptoms.join(",");
+        fetch(`/predict/?symptoms=${symptomsQuery}`)
+            .then(response => response.json())
+            .then(data => {
+                let resultBox = document.getElementById("result-box");
+                resultBox.innerHTML = `
+                    <strong>Final Prediction:</strong> ${data["Final Prediction"]} <br>
+                `;
+                resultBox.classList.remove("hidden");
+            })
+            
+            
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Something went wrong. Please try again.");
+            });
+    });
+</script>
+{% endblock %}

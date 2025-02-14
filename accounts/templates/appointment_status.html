@@ -1,0 +1,27 @@
+{% extends base_template %}
+
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-[#1a202c] p-4">
+    <div class="bg-[#2d3748] shadow-lg rounded-lg p-6 w-full max-w-md text-center text-white mx-auto">
+        {% if success %}
+            <h2 class="text-[#48bb78] text-xl font-bold">Appointment Confirmed</h2>
+            <p class="mt-2 text-gray-300">Your appointment has been successfully booked.</p>
+            <p class="mt-1 text-gray-100 font-bold">Appointment ID: {{ appointment.appointment_id }}</p>
+            <p class="mt-1 text-gray-100">Date: {{ appointment.date }}</p>
+            <p class="mt-1 text-gray-100">Start Time: {{ appointment.start_time }}</p>
+            <p class="mt-1 text-gray-100">End Time: {{ appointment.end_time }}</p>
+            <p class="mt-4 text-gray-300 font-bold">{{ early_arrival_message }}</p>
+        {% else %}
+            <h2 class="text-[#f56565] text-xl font-bold">Appointment Failed</h2>
+            <p class="mt-2 text-gray-300">{{ error_message }}</p>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{% url 'dashboard' %}" class="bg-[#3182ce] text-white px-4 py-2 rounded-lg hover:bg-[#2b6cb0]">
+                Go to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

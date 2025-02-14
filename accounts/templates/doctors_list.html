@@ -1,0 +1,127 @@
+{% extends base_template %}
+
+
+{% block content %}
+<div class="container mx-auto p-4 min-h-screen">
+    <h1 class="text-2xl font-bold text-center mb-6 text-white">Find Your Doctor</h1>
+    
+    <!-- Filter Form -->
+    <form method="GET" class="mb-8 bg-gray-800 p-6 rounded-lg shadow-md">
+        <div class="flex flex-wrap gap-4 justify-center items-end">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-gray-300 mb-2">Doctor's Name</label>
+                <input type="text" name="name" placeholder="Search by name..." 
+                       class="w-full p-2 border border-gray-600 rounded text-white bg-gray-700 focus:ring-2 focus:ring-blue-500"
+                       value="{{ request.GET.name }}">
+            </div>
+            
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-gray-300 mb-2">Specialization</label>
+                <input type="text" name="specialization" placeholder="Any specialization..."
+                       class="w-full p-2 border border-gray-600 rounded text-white bg-gray-700 focus:ring-2 focus:ring-blue-500"
+                       value="{{ request.GET.specialization }}">
+            </div>
+            
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-gray-300 mb-2">Day</label>
+                <select name="day" class="w-full p-2 border border-gray-600 rounded text-white bg-gray-700 focus:ring-2 focus:ring-blue-500">
+                    <option value="">Any Day</option>
+                    <option value="Monday" {% if request.GET.day == 'Monday' %}selected{% endif %}>Monday</option>
+                    <option value="Tuesday" {% if request.GET.day == 'Tuesday' %}selected{% endif %}>Tuesday</option>
+                    <option value="Wednesday" {% if request.GET.day == 'Wednesday' %}selected{% endif %}>Wednesday</option>
+                    <option value="Thursday" {% if request.GET.day == 'Thursday' %}selected{% endif %}>Thursday</option>
+                    <option value="Friday" {% if request.GET.day == 'Friday' %}selected{% endif %}>Friday</option>
+                    <option value="Saturday" {% if request.GET.day == 'Saturday' %}selected{% endif %}>Saturday</option>
+                    <option value="Sunday" {% if request.GET.day == 'Sunday' %}selected{% endif %}>Sunday</option>
+                </select>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition-colors duration-200">
+                    Search
+                </button>
+                <a href="{% url 'doctors_view_patient' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded transition-colors duration-200">
+                    Reset
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Doctors List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for doctor in page_obj %}
+            <div class="bg-gray-800 rounded-xl shadow-md overflow-hidden transform transition hover:scale-105 hover:shadow-lg duration-300">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed={{ doctor.user.first_name }}" 
+                             alt="Doctor Avatar"
+                             class="w-16 h-16 rounded-full border-2 border-blue-400 mr-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h2>
+                            <p class="text-blue-400 font-medium">{{ doctor.specialization }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>{{ doctor.get_status_display }}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>{{ doctor.experience }} years experience</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <h3 class="text-sm font-semibold text-gray-400 mb-2">Availability:</h3>
+                        <ul class="space-y-1">
+                            {% for availability in doctor.availabilities.all %}
+                                {% if availability.day == day or not day %}
+                                <li class="text-sm text-gray-300">
+                                    <span class="font-medium">{{ availability.day }}:</span>
+                                    {{ availability.start_time|time:"g:i A" }} - {{ availability.end_time|time:"g:i A" }}
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-span-3 text-center py-8">
+                <p class="text-gray-400 text-lg">No doctors found matching your criteria.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="mt-8 flex justify-center items-center space-x-2">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&name={{ request.GET.name }}&specialization={{ request.GET.specialization }}&day={{ request.GET.day }}"
+               class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">
+                &laquo; Previous
+            </a>
+        {% endif %}
+
+        <span class="text-gray-300">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&name={{ request.GET.name }}&specialization={{ request.GET.specialization }}&day={{ request.GET.day }}"
+               class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">
+                Next &raquo;
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

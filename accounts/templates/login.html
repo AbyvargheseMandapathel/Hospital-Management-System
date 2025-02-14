@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Management - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    body {
+      background: linear-gradient(135deg, #1a202c, #2d3748);
+      color: #e2e8f0;
+    }
+    .bg-custom-dark {
+      background-color: #1a202c;
+    }
+    .text-custom-green {
+      color: #4ade80;
+    }
+    .border-custom-green {
+      border-color: #4ade80;
+    }
+    .hover-custom-green:hover {
+      background-color: #38a169;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="flex w-full max-w-4xl bg-custom-dark border border-gray-700 rounded-3xl shadow-xl overflow-hidden fade-in">
+    <!-- Login Card -->
+    <div class="w-full md:w-1/2 p-6 sm:p-8">
+      <!-- Hospital Logo -->
+      <div class="flex justify-center mb-6">
+        <img src="https://via.placeholder.com/100" alt="Hospital Logo" class="h-16 w-auto">
+      </div>
+      <!-- Title -->
+      <h1 class="text-4xl font-bold text-center text-white mb-4 fade-in">Welcome Back!</h1>
+      <p class="text-sm text-center text-gray-400 mb-6 fade-in">Please log in to access your account.</p>
+      <!-- Error Messages -->
+      {% if messages %}
+        <div class="mb-4 fade-in">
+          {% for message in messages %}
+            <p class="text-red-500 text-sm">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <!-- Login Form -->
+      <form method="POST" class="space-y-4 fade-in">
+        {% csrf_token %}
+        <!-- Username Field -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-300">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+            placeholder="Enter your username"
+            required>
+        </div>
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+            placeholder="Enter your password"
+            required>
+        </div>
+        <!-- Forgot Password Link -->
+        <div class="text-right fade-in">
+          <a href="{% url 'password_reset' %}" class="text-sm text-custom-green hover:underline">Forgot Password?</a>
+        </div>
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-custom-green hover-custom-green text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200 fade-in">
+          Log In
+        </button>
+      </form>
+      <!-- Additional Links -->
+      <div class="mt-6 text-center text-sm text-gray-400 fade-in">
+        <p>Don't have an account? <a href="{% url 'signup' %}" class="text-custom-green hover:underline">Sign up</a></p>
+      </div>
+    </div>
+    <!-- Image Section -->
+    <div class="hidden md:block md:w-1/2 bg-gradient-to-br from-blue-800 to-green-800 p-6 relative fade-in">
+      <div class="absolute top-4 right-4 text-white text-xs font-semibold">
+        <p>Secure & Reliable</p>
+        <p>Hospital Management System</p>
+      </div>
+      <div class="grid grid-cols-1 gap-4 mt-16">
+        <img src="https://picsum.photos/300/200?random=1" alt="Hospital Image 1" class="w-full h-48 rounded-lg shadow-md object-cover fade-in">
+        <img src="https://picsum.photos/300/200?random=2" alt="Hospital Image 2" class="w-full h-48 rounded-lg shadow-md object-cover fade-in">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

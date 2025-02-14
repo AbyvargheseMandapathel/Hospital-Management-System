@@ -1,0 +1,53 @@
+{% extends base_template %}
+
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-custom-dark shadow-lg rounded-lg border border-gray-700">
+    
+    <!-- Back to Dashboard Button -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard' %}" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <h2 class="text-2xl font-semibold mb-4 text-gray-300">Patient Details</h2>
+
+    <div class="text-gray-300">
+        <p><strong>Name:</strong> {{ patient.user.first_name }} {{ patient.user.last_name }}</p>
+        <p><strong>Admission Number:</strong> {{ patient.admission_number }}</p>
+        <p><strong>Email:</strong> {{ patient.user.email }}</p>
+        <p><strong>Phone:</strong> {{ patient.phone_number }}</p>
+    </div>
+
+    <h3 class="text-xl font-semibold mt-6 mb-2 text-gray-300">Consultation History</h3>
+    {% if appointments %}
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-gray-700 rounded-lg">
+            <thead>
+                <tr class="bg-gray-800 text-gray-400">
+                    <th class="px-4 py-2 border border-gray-600 text-left">Date</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Doctor</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Reason</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Comments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr class="border border-gray-700 hover:bg-gray-700 text-gray-300">
+                    <td class="px-4 py-3 border border-gray-600">{{ appointment.date }}</td>
+                    <td class="px-4 py-3 border border-gray-600">{{ appointment.doctor.user.get_full_name }}</td>
+                    <td class="px-4 py-3 border border-gray-600">{{ appointment.symptoms }}</td>
+                    <td class="px-4 py-3 border border-gray-600">{{ appointment.comments }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center text-gray-400 p-6">
+        <p class="text-lg">No consultation history available.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

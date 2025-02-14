@@ -1,0 +1,54 @@
+{% extends base_template %}
+
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-custom-dark shadow-lg rounded-lg border border-gray-700">
+    <h2 class="text-3xl font-semibold mb-6 text-gray-300">🩺 Vital Records</h2>
+
+    <div class="text-gray-300">
+        <p><strong>Patient:</strong> {{ appointment.patient.user.get_full_name }}</p>
+        <p><strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name }}</p>
+        <p><strong>Nurse:</strong> {{ appointment.nurse.user.get_full_name }}</p>
+        <p><strong>Recorded At:</strong> {{ vitals.recorded_at }}</p>
+    </div>
+
+    <table class="w-full mt-4 border-collapse border border-gray-700 text-gray-300">
+        <thead>
+            <tr class="bg-gray-800">
+                <th class="p-3 border border-gray-700">Vital</th>
+                <th class="p-3 border border-gray-700">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="bg-gray-900 hover:bg-gray-800">
+                <td class="p-3 border border-gray-700">Sugar Level</td>
+                <td class="p-3 border border-gray-700">{{ vitals.sugar_level|default:"N/A" }} mg/dL</td>
+            </tr>
+            <tr class="bg-gray-900 hover:bg-gray-800">
+                <td class="p-3 border border-gray-700">Cholesterol Level</td>
+                <td class="p-3 border border-gray-700">{{ vitals.cholesterol_level|default:"N/A" }} mg/dL</td>
+            </tr>
+            <tr class="bg-gray-900 hover:bg-gray-800">
+                <td class="p-3 border border-gray-700">Blood Pressure</td>
+                <td class="p-3 border border-gray-700">{{ vitals.blood_pressure_systolic|default:"N/A" }}/{{ vitals.blood_pressure_diastolic|default:"N/A" }} mmHg</td>
+            </tr>
+            <tr class="bg-gray-900 hover:bg-gray-800">
+                <td class="p-3 border border-gray-700">Heart Rate</td>
+                <td class="p-3 border border-gray-700">{{ vitals.heart_rate|default:"N/A" }} bpm</td>
+            </tr>
+            <tr class="bg-gray-900 hover:bg-gray-800">
+                <td class="p-3 border border-gray-700">Oxygen Saturation</td>
+                <td class="p-3 border border-gray-700">{{ vitals.oxygen_saturation|default:"N/A" }} %</td>
+            </tr>
+            <tr class="bg-gray-900 hover:bg-gray-800">
+                <td class="p-3 border border-gray-700">Temperature</td>
+                <td class="p-3 border border-gray-700">{{ vitals.temperature|default:"N/A" }} °C</td>
+            </tr>
+            <tr class="bg-gray-900 hover:bg-gray-800">
+                <td class="p-3 border border-gray-700">Notes</td>
+                <td class="p-3 border border-gray-700">{{ vitals.notes|default:"No notes available" }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

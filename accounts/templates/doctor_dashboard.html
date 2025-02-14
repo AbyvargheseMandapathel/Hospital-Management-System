@@ -1,0 +1,74 @@
+{% extends base_template %}
+
+
+{% block title %}
+Doctor Dashboard
+{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <h2 class="text-3xl font-bold text-gray-200 mb-6">Doctor Dashboard</h2>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-3 gap-6 mb-6">
+        <div class="p-6 bg-gray-800 rounded-lg shadow-md text-center">
+            <h3 class="text-lg font-semibold text-gray-300">Total Patients</h3>
+            <p class="text-4xl font-bold text-white">{{ total_patients }}</p>
+        </div>
+        <div class="p-6 bg-gray-800 rounded-lg shadow-md text-center">
+            <h3 class="text-lg font-semibold text-gray-300">Total Appointments</h3>
+            <p class="text-4xl font-bold text-white">{{ total_appointments }}</p>
+        </div>
+        <div class="p-6 bg-gray-800 rounded-lg shadow-md text-center">
+            <h3 class="text-lg font-semibold text-gray-300">Upcoming Appointments</h3>
+            <p class="text-4xl font-bold text-white">{{ upcoming_appointments }}</p>
+        </div>
+    </div>
+
+    <!-- Recent Appointments Table -->
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold text-gray-200 mb-4">Recent Appointments</h3>
+        
+        <table class="w-full border-collapse">
+            <thead>
+                <tr class="text-left text-gray-400 border-b border-gray-700">
+                    <th class="p-3">Patient Name</th>
+                    <th class="p-3">Date</th>
+                    <th class="p-3">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in recent_appointments %}
+                <tr class="border-b border-gray-700 text-gray-300">
+                    <td class="p-3">{{ appointment.patient.user.first_name }}{{ appointment.patient.user.first_name }}</td>
+                    <td class="p-3">{{ appointment.date }}</td>
+                    <td class="p-3">
+                        {% if appointment.status == "Pending" %}
+                            <span class="px-2 py-1 bg-yellow-500 text-gray-900 text-sm font-semibold rounded-lg">Pending</span>
+                        {% elif appointment.status == "Completed" %}
+                            <span class="px-2 py-1 bg-green-500 text-gray-900 text-sm font-semibold rounded-lg">Completed</span>
+                        {% else %}
+                            <span class="px-2 py-1 bg-red-500 text-gray-900 text-sm font-semibold rounded-lg">Canceled</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="p-3 text-center text-gray-400">No recent appointments</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    table {
+        border-spacing: 0;
+    }
+    th, td {
+        padding: 12px;
+        text-align: left;
+    }
+</style>
+{% endblock %}

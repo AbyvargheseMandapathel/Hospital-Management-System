@@ -1,0 +1,37 @@
+{% extends base_template %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-custom-dark shadow-lg rounded-lg border border-gray-700">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-300">Record Vitals for {{ appointment.patient.user.get_full_name }}</h2>
+
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        
+        <label class="text-gray-300">Sugar Level (mg/dL)</label>
+        <input type="number" step="0.1" name="sugar_level" class="w-full p-2 border border-gray-600 rounded bg-gray-800 text-gray-300">
+
+        <label class="text-gray-300">Cholesterol Level (mg/dL)</label>
+        <input type="number" step="0.1" name="cholesterol_level" class="w-full p-2 border border-gray-600 rounded bg-gray-800 text-gray-300">
+
+        <label class="text-gray-300">Blood Pressure (mmHg)</label>
+        <div class="flex space-x-2">
+            <input type="number" name="blood_pressure_systolic" placeholder="Systolic" class="w-1/2 p-2 border border-gray-600 rounded bg-gray-800 text-gray-300">
+            <input type="number" name="blood_pressure_diastolic" placeholder="Diastolic" class="w-1/2 p-2 border border-gray-600 rounded bg-gray-800 text-gray-300">
+        </div>
+
+        <label class="text-gray-300">Heart Rate (BPM)</label>
+        <input type="number" name="heart_rate" class="w-full p-2 border border-gray-600 rounded bg-gray-800 text-gray-300">
+
+        <label class="text-gray-300">Oxygen Saturation (%)</label>
+        <input type="number" name="oxygen_saturation" class="w-full p-2 border border-gray-600 rounded bg-gray-800 text-gray-300">
+
+        <label class="text-gray-300">Temperature (°C)</label>
+        <input type="number" step="0.1" name="temperature" class="w-full p-2 border border-gray-600 rounded bg-gray-800 text-gray-300">
+
+        <label class="text-gray-300">Additional Notes</label>
+        <textarea name="notes" class="w-full p-2 border border-gray-600 rounded bg-gray-800 text-gray-300"></textarea>
+
+        <button type="submit" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Save Vitals</button>
+    </form>
+</div>
+{% endblock %}

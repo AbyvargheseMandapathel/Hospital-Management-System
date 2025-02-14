@@ -1,0 +1,18 @@
+{% extends base_template %}
+
+
+{% block title %}Access Denied{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+    <h2 class="text-3xl font-semibold text-red-500 mb-4">
+        <i class="fas fa-exclamation-triangle"></i> Access Denied
+    </h2>
+    <p class="text-lg text-gray-300">{{ message }}</p>
+    <p class="text-gray-400 mt-2">Please wait for admin approval or contact support.</p>
+
+    <a href="{% url 'login' %}" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition">
+        <i class="fas fa-arrow-left"></i> Go Back to login
+    </a>
+</div>
+{% endblock %}

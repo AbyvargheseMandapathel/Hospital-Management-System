@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Hospital - Quality Healthcare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="font-sans bg-gray-900 text-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 shadow-lg fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-blue-400">MediCare</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'predict_page' %}" class="text-gray-300 hover:text-blue-400">Predict</a>
+                    <a href="{% url 'login' %}" class="text-gray-300 hover:text-blue-400">Login</a>
+                    <a href="{% url 'signup' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-20 bg-gradient-to-r from-blue-700 to-blue-900">
+        <div class="max-w-7xl mx-auto px-4 py-24">
+            <div class="text-center text-white">
+                <h1 class="text-5xl font-bold mb-6">World-Class Healthcare Services</h1>
+                <p class="text-xl mb-8">24/7 Advanced Medical Care with Compassion</p>
+                <a href="{% url 'book_appointment_flow' %}" class="bg-white text-blue-600 px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90">
+                    Book Appointment
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+<section class="py-16 bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-white">Why Choose MediCare?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Modified card with enhanced hover effects -->
+            <div class="bg-gray-700 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-600">
+                <div class="text-blue-400 text-4xl mb-4">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-white">Expert Doctors</h3>
+                <p class="text-gray-300">Board-certified specialists with extensive experience</p>
+            </div>
+
+            <!-- Repeat the same hover effects for other cards -->
+            <div class="bg-gray-700 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-600">
+                <div class="text-blue-400 text-4xl mb-4">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-white">24/7 Emergency</h3>
+                <p class="text-gray-300">Round-the-clock emergency care and critical services</p>
+            </div>
+
+            <div class="bg-gray-700 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-600">
+                <div class="text-blue-400 text-4xl mb-4">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-white">Advanced Technology</h3>
+                <p class="text-gray-300">State-of-the-art medical equipment and facilities</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">MediCare</h4>
+                    <p class="text-gray-400">Compassionate Care, Advanced Medicine.</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Services</a></li>
+                        <li><a href="#" class="hover:text-white">Doctors</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>123 Medical Drive</li>
+                        <li>Health City, HC 456</li>
+                        <li>Phone: (123) 456-7890</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Emergency</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>24/7 Emergency Care</li>
+                        <li>Ambulance: 911</li>
+                        <li>Helpline: (123) 456-7891</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 MediCare Hospital. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

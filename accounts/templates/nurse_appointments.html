@@ -1,0 +1,58 @@
+{% extends base_template %}
+
+{% block content %}
+
+<div class="max-w-5xl mx-auto mt-10 p-6 bg-custom-dark shadow-lg rounded-lg border border-gray-700">
+    <h2 class="text-3xl font-semibold mb-6 text-gray-300">🩺 Nurse's Appointments</h2>
+
+    {% if appointments %}
+        <table class="w-full border-collapse border border-gray-700 text-gray-300">
+            <thead>
+                <tr class="bg-gray-800">
+                    <th class="p-3 border border-gray-700">Patient</th>
+                    <th class="p-3 border border-gray-700">Doctor</th>
+                    <th class="p-3 border border-gray-700">Date & Time</th>
+                    <th class="p-3 border border-gray-700">Status</th>
+                    <th class="p-3 border border-gray-700">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr class="bg-gray-900 hover:bg-gray-800">
+                    <td class="p-3 border border-gray-700">{{ appointment.patient.user.get_full_name }}</td>
+                    <td class="p-3 border border-gray-700">Dr. {{ appointment.doctor.user.get_full_name }}</td>
+                    <td class="p-3 border border-gray-700">
+                        {{ appointment.date }} {{ appointment.start_time|default:"TBD" }}
+                    </td>
+                    <td class="p-3 border border-gray-700">
+                        <span class="px-2 py-1 rounded text-white {% if appointment.status == 'Confirmed' %}bg-green-600{% elif appointment.status == 'Pending' %}bg-yellow-600{% else %}bg-red-600{% endif %}">
+                            {{ appointment.status }}
+                        </span>
+                    </td>
+                    <td class="p-3 border border-gray-700 text-center">
+                        {% if appointment.status == 'Confirmed' %}
+                        {% if appointment.vitalsrecord %}
+                        <a href="{% url 'appointment_detail' appointment.id %}" 
+                           class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                            See Details
+                        </a>
+                    {% else %}
+                        <a href="{% url 'add_vitals' appointment.id %}" 
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                            Add Vitals
+                        </a>
+                    {% endif %}
+                        {% else %}
+                            <span class="text-gray-500">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-gray-400">No appointments assigned to you.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

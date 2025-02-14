@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Patient Panel{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    body {
+      background-color: #1a202c;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .bg-sidebar {
+      background-color: #111827; /* Darker for sidebar */
+    }
+
+    .bg-navbar {
+      background-color: #121c2b; /* Slightly lighter than sidebar */
+    }
+
+    .hover-effect {
+      transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+    }
+
+    .hover-effect:hover {
+      background-color: #2d3748; /* Soft contrast */
+      transform: scale(1.05);
+    }
+
+    .text-custom-green {
+      color: #4ade80;
+    }
+
+    .alert {
+      background-color: #2d3748;
+      border-left: 4px solid #4ade80;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .border-custom {
+      border-color: #4ade80;
+    }
+
+    .user-profile {
+      border-top: 1px solid #4ade80;
+      padding-top: 10px;
+      margin-top: 20px;
+    }
+
+    /* Mobile Sidebar */
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 250px;
+      height: 100%;
+      background-color: #111827;
+      transition: left 0.3s ease;
+      z-index: 1000;
+      padding-top: 20px;
+    }
+
+    .mobile-sidebar.open {
+      left: 0;
+    }
+
+    .mobile-sidebar .user-profile {
+      position: absolute;
+      bottom: 20px;
+      width: calc(100% - 40px);
+      margin-left: 20px;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 999;
+    }
+
+    .overlay.open {
+      display: block;
+    }
+  </style>
+</head>
+<body class="bg-custom-dark text-gray-100 font-sans">
+  <div class="flex h-screen flex-col md:flex-row">
+
+    <!-- Mobile Overlay -->
+    <div class="overlay" onclick="document.querySelector('.mobile-sidebar').classList.remove('open'); document.querySelector('.overlay').classList.remove('open');"></div>
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-sidebar text-white p-4 fade-in hidden md:flex flex-col border-r border-custom h-screen">
+      <h2 class="text-2xl font-semibold mb-6 text-custom-green flex items-center">
+        <i class="fas fa-user-shield mr-2"></i> Patient Panel
+      </h2>
+      <nav class="flex-1">
+        <ul class="space-y-2">
+          <li><a href="{% url 'patient_dashboard' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
+          <li><a href="{% url 'book_appointment_flow' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-user-md mr-2"></i> Book Appointment</a></li>
+          <li><a href="{% url 'doctors_view_patient' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-users mr-2"></i> Browse Doctprs</a></li>
+          <li><a href="{% url 'patient_appointments' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-alt mr-2"></i> Appointments</a></li>
+          <li><a href="{% url 'predict_page' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-alt mr-2"></i> Predict</a></li>
+
+        </ul>
+      </nav>
+      <!-- User Profile (Fixed at Bottom) -->
+      <div class="user-profile flex items-center p-4 border-t border-custom mt-auto">
+        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="User Avatar" class="rounded-full w-10 h-10 mr-3">
+        <div>
+          <p class="text-sm font-semibold">{{ user.username }}</p>
+          <p class="text-xs text-gray-400">{{ user.user_type }}</p>
+        </div>
+      </div>
+    </aside>
+
+
+    <!-- Mobile Sidebar -->
+    <aside class="mobile-sidebar bg-sidebar text-white p-4 fade-in">
+      <h2 class="text-2xl font-semibold mb-6 text-custom-green flex items-center">
+        <i class="fas fa-user-shield mr-2"></i> Patient Panel
+      </h2>
+      <nav>
+        <ul class="space-y-2">
+          <li><a href="{% url 'admin_dashboard' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
+          <li><a href="{% url 'approve_doctors' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-user-md mr-2"></i> Approve Doctors</a></li>
+          <li><a href="{% url 'approved_doctors' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-users mr-2"></i> Doctors View</a></li>
+          <li><a href="{% url 'view_patients' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-procedures mr-2"></i> Patients</a></li>
+          <li><a href="{% url 'view_appointments' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-alt mr-2"></i> Appointments</a></li>
+        </ul>
+      </nav>
+      <!-- User Profile -->
+      <div class="user-profile flex items-center mt-auto">
+        <img src="https://randomuser.me/api/portraits/men/1.jpg" 
+            alt="User Avatar" 
+            class="rounded-full w-10 h-10 md:w-12 md:h-12 mr-3">
+        <div>
+          <p class="text-sm font-semibold">{{ user.username }}</p>
+          <p class="text-xs text-gray-400">{{ user.user_type }}</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col fade-in">
+      <!-- Navbar -->
+      <header class="bg-navbar text-white p-4 flex justify-between items-center border-b border-custom">
+        <button class="md:hidden text-white" onclick="document.querySelector('.mobile-sidebar').classList.toggle('open'); document.querySelector('.overlay').classList.toggle('open');">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="text-xl font-semibold text-custom-green flex items-center">
+          <i class="fas fa-tachometer-alt mr-2"></i> Patient Dashboard
+        </h1>
+        <a href="{% url 'logout_user' %}" class="bg-red-700 hover-effect text-white py-2 px-4 rounded flex items-center">
+          <i class="fas fa-sign-out-alt mr-2"></i> Log Out
+        </a>
+      </header>
+
+      <!-- Alerts Section -->
+      <section class="p-4">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert flex items-center">
+              <i class="fas fa-exclamation-circle mr-2 text-custom-green"></i>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </section>
+
+      <!-- Main Section -->
+      <section class="flex-1 p-8 fade-in">
+        {% block content %}{% endblock %}
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Close the mobile sidebar when clicking outside of it
+    document.addEventListener('click', function(event) {
+      const isClickInside = document.querySelector('.mobile-sidebar').contains(event.target);
+      const isButtonClick = document.querySelector('button.md\\:hidden').contains(event.target);
+      if (!isClickInside && !isButtonClick) {
+        document.querySelector('.mobile-sidebar').classList.remove('open');
+        document.querySelector('.overlay').classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>

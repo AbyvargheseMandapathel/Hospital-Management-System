@@ -1,0 +1,86 @@
+{% extends base_template %}
+
+
+{% block title %}
+Admin Dashboard
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
+  <!-- Alerts Section -->
+  {% if messages %}
+    <div class="col-span-full bg-custom-dark p-4 mb-4 rounded-lg shadow-md border border-gray-700">
+      <div class="flex items-center mb-2">
+        <i class="fas fa-exclamation-circle text-yellow-400 mr-2"></i>
+        <h3 class="text-xl font-semibold text-gray-300">Alerts</h3>
+      </div>
+      {% for message in messages %}
+        <p class="text-gray-400"><i class="fas fa-info-circle mr-2 text-blue-400"></i>{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Card: Total Doctors -->
+  <div class="bg-custom-dark p-6 rounded-lg shadow-md border border-gray-700">
+    <div class="flex items-center mb-2">
+      <i class="fas fa-user-md text-custom-green mr-2"></i>
+      <h3 class="text-xl font-semibold text-gray-300">Total Doctors</h3>
+    </div>
+    <p class="text-3xl font-bold text-custom-green">{{ total_doctors }}</p>
+  </div>
+
+  <!-- Card: Total Patients -->
+  <div class="bg-custom-dark p-6 rounded-lg shadow-md border border-gray-700">
+    <div class="flex items-center mb-2">
+      <i class="fas fa-procedures text-green-400 mr-2"></i>
+      <h3 class="text-xl font-semibold text-gray-300">Total Patients</h3>
+    </div>
+    <p class="text-3xl font-bold text-green-400">{{ total_patients }}</p>
+  </div>
+
+  <!-- Card: Total Appointments -->
+  <div class="bg-custom-dark p-6 rounded-lg shadow-md border border-gray-700">
+    <div class="flex items-center mb-2">
+      <i class="fas fa-calendar-alt text-indigo-400 mr-2"></i>
+      <h3 class="text-xl font-semibold text-gray-300">Total Appointments</h3>
+    </div>
+    <p class="text-3xl font-bold text-indigo-400">{{ total_appointments }}</p>
+  </div>
+
+  <!-- Recent Appointments Table -->
+  <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-custom-dark p-6 rounded-lg shadow-md border border-gray-700">
+    <div class="flex items-center mb-4">
+      <i class="fas fa-clock text-gray-400 mr-2"></i>
+      <h3 class="text-xl font-semibold text-gray-300">Recent Appointments</h3>
+    </div>
+    <table class="w-full text-sm text-left text-gray-400">
+      <thead class="text-xs text-gray-500 uppercase bg-gray-800">
+        <tr>
+          <th scope="col" class="px-6 py-3">Patient Name</th>
+          <th scope="col" class="px-6 py-3">Doctor Name</th>
+          <th scope="col" class="px-6 py-3">Date</th>
+          <th scope="col" class="px-6 py-3">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appointment in recent_appointments %}
+        <tr class="border-b hover:bg-gray-700">
+          <td class="px-6 py-4">{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</td>
+          <td class="px-6 py-4">{{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</td>
+          <td class="px-6 py-4">{{ appointment.date }}</td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 rounded {% if appointment.status == 'Pending' %}bg-yellow-200 text-yellow-800{% elif appointment.status == 'Confirmed' %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}">
+              {{ appointment.status }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="px-6 py-4 text-center text-gray-500">No recent appointments found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

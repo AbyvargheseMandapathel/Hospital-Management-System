@@ -1,0 +1,64 @@
+{% extends base_template %}
+
+
+{% block content %}
+<div class="max-w-3xl mx-auto p-6 bg-gray-800 shadow-lg rounded-lg text-white">
+    <h2 class="text-2xl font-bold mb-6 text-gray-200">Update Availability</h2>
+    
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="space-y-2">
+            {% for field in form %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-300">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p class="text-red-400 text-xs mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="w-full bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition">
+            Save Availability
+        </button>
+    </form>
+
+    <h3 class="text-xl font-semibold mt-8 mb-4 text-gray-200">Current Availability</h3>
+
+    <ul class="space-y-3">
+        {% for availability in availabilities %}
+            <li class="flex justify-between items-center p-3 border border-gray-600 bg-gray-700 rounded-lg shadow-sm">
+                <span class="text-gray-300 font-medium">
+                    {{ availability.day }}: {{ availability.start_time }} - {{ availability.end_time }}
+                </span>
+                <a href="{% url 'delete_availability' availability.id %}" 
+                   class="text-red-400 hover:underline">
+                   Delete
+                </a>
+            </li>
+        {% empty %}
+            <p class="text-gray-400 text-sm">No availability added yet.</p>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Apply Dark Grey Theme to Input Fields -->
+<style>
+    input, select, textarea {
+        background-color: #2d3748; /* Dark gray */
+        border: 1px solid #4a5568; /* Gray border */
+        color: #e2e8f0; /* Light text */
+        padding: 8px;
+        width: 100%;
+        border-radius: 6px;
+    }
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #63b3ed; /* Blue border on focus */
+        box-shadow: 0 0 5px rgba(99, 179, 237, 0.5);
+    }
+</style>
+{% endblock %}

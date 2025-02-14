@@ -42,6 +42,10 @@
       <p class="font-medium">Comments:</p>
       <p>{{ appointment.comments }}</p>
     </div>
+    <div>
+      <p class="font-medium">Advice:</p>
+      <p>{% if appointment.advice %}{{ appointment.advice }}{% else %}Not Updated{% endif %}</p>
+    </div>    
   </div>
   <div class="mt-6">
     <a href="{% url 'dashboard' %}" class="text-blue-400 hover:text-blue-300">

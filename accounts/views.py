@@ -247,6 +247,7 @@ def is_doctor(user):
 def is_doctor_admin(user):
     return user.is_authenticated and hasattr(user, 'doctor') and user.doctor.is_approved or user.user_type in ['admin']
 
+
 @user_passes_test(is_admin, login_url='login')
 def approve_doctors(request):
     """ View to fetch and display unapproved doctors """

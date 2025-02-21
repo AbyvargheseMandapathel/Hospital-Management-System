@@ -1059,3 +1059,43 @@ def view_appointments_nurse(request):
     appointments = Appointment.objects.filter(nurse=nurse).order_by('-date')
 
     return render(request, "view_appointments_nurse.html", {"appointments": appointments})
+
+
+@login_required
+def submit_feedback(request):
+    if request.method == "POST":
+        message = request.POST.get("message")
+        if message:
+            Feedback.objects.create(user=request.user, message=message)
+            messages.success(request, "Feedback submitted successfully!")
+        else:
+            messages.error(request, "Message cannot be empty.")
+    return render(request, "submit_feedback.html")
+
+@user_passes_test(is_admin)
+def feedback_list(request):
+    feedbacks = Feedback.objects.all()
+    return render(request, "feedback_list.html", {"feedbacks": feedbacks})
+
+@user_passes_test(is_admin)
+def admin_reply_feedback(request, feedback_id):
+    if not request.user.is_superuser:
+        messages.error(request, "Unauthorized access!")
+        return redirect("feedback_list")
+
+    feedback = get_object_or_404(Feedback, id=feedback_id)
+
+    if request.method == "POST":
+        reply = request.POST.get("reply")
+        feedback.reply = reply
+        feedback.save()
+        messages.success(request, "Reply added successfully!")
+        return redirect("feedback_list")
+
+    return render(request, "admin_reply_feedback.html", {"feedback": feedback})
+
+
+@login_required
+def user_feedback_list(request):
+    feedbacks = Feedback.objects.filter(user=request.user)
+    return render(request, "user_feedback_list.html", {"feedbacks": feedbacks})

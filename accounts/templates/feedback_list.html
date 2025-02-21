@@ -1,0 +1,32 @@
+{% extends base_template %}
+
+{% block title %}Feedback List{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-4 text-custom-green flex items-center">
+  <i class="fas fa-comments mr-2"></i> Feedback List
+</h2>
+
+<div class="space-y-4">
+  {% if feedbacks %}
+    {% for feedback in feedbacks %}
+      <div class="bg-sidebar p-4 rounded-lg border border-custom">
+        <p class="text-gray-300"><strong>User:</strong> {{ feedback.user.username }}</p>
+        <p class="text-gray-300"><strong>Message:</strong> {{ feedback.message }}</p>
+        <p class="text-gray-400 text-sm mt-2">Submitted on: {{ feedback.created_at|date:"M d, Y H:i" }}</p>
+        {% if feedback.reply %}
+          <div class="mt-2 p-2 bg-gray-800 rounded">
+            <p class="text-gray-300"><strong>Admin Reply:</strong> {{ feedback.reply }}</p>
+          </div>
+        {% else %}
+          <a href="{% url 'admin_reply_feedback' feedback.id %}" class="text-custom-green hover:underline mt-2 inline-block">
+            <i class="fas fa-reply mr-2"></i> Reply
+          </a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-gray-400">No feedback available.</p>
+  {% endif %}
+</div>
+{% endblock %}

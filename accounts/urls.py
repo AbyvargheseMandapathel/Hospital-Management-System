@@ -61,6 +61,12 @@ urlpatterns = [
     path("nurse/appointments/", view_appointments_nurse, name="view_appointments_nurse"),
     
     path("vitals/<int:appointment_id>/", vital_records_view, name="vital_records"),
+    
+    path("my-feedback/", user_feedback_list, name="user_feedback_list"),
+    path("submit/", submit_feedback, name="submit_feedback"),
+    path("list/", feedback_list, name="feedback_list"),
+    path("reply/<int:feedback_id>/", admin_reply_feedback, name="admin_reply_feedback"),
+
 ]
 
 

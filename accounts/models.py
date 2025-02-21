@@ -268,3 +268,13 @@ class VitalsRecord(models.Model):
         else:
             raise ValueError("Vitals can only be recorded if an appointment has an assigned nurse.")
         super().save(*args, **kwargs)
+        
+        
+class Feedback(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    message = models.TextField()
+    reply = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.user.username}"

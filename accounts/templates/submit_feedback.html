@@ -1,0 +1,20 @@
+{% extends base_template %}
+
+{% block title %}Submit Feedback{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-4 text-custom-green flex items-center">
+  <i class="fas fa-comment-medical mr-2"></i> Submit Feedback
+</h2>
+
+<form method="POST" class="space-y-4">
+  {% csrf_token %}
+  <div>
+    <label for="message" class="block text-gray-300 mb-2">Your Feedback:</label>
+    <textarea id="message" name="message" rows="4" class="w-full p-2 bg-gray-700 text-white rounded border border-custom" required></textarea>
+  </div>
+  <button type="submit" class="bg-custom-green hover:bg-green-600 text-white py-2 px-4 rounded flex items-center">
+    <i class="fas fa-paper-plane mr-2"></i> Submit Feedback
+  </button>
+</form>
+{% endblock %}

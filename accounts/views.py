@@ -1099,3 +1099,23 @@ def admin_reply_feedback(request, feedback_id):
 def user_feedback_list(request):
     feedbacks = Feedback.objects.filter(user=request.user)
     return render(request, "user_feedback_list.html", {"feedbacks": feedbacks})
+
+
+@login_required
+def change_shift_view(request):
+    nurse = getattr(request.user, 'nurse', None)  # Get nurse object if exists
+
+    if not nurse:
+        messages.error(request, "You are not authorized to change shift.")
+        return redirect("dashboard")  
+
+    if request.method == "POST":
+        new_shift = request.POST.get("new_shift")  
+        if new_shift:
+            nurse.shift = new_shift
+            nurse.save()
+            messages.success(request, f"Shift changed to {new_shift} successfully!")
+        else:
+            messages.error(request, "Invalid shift selection.")
+
+    return render(request, "change_shift.html", {"nurse": nurse})

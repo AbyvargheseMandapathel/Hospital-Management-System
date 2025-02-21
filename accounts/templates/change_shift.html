@@ -1,0 +1,30 @@
+{% extends base_template %}
+
+{% block title %}Change Shift{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-4 text-custom-green flex items-center">
+  <i class="fas fa-clock mr-2"></i> Change Shift
+</h2>
+
+<div class="bg-sidebar p-6 rounded-lg border border-custom shadow-md">
+  <p class="text-gray-300 mb-4"><strong>Current Shift:</strong> {{ nurse.shift }}</p>
+  
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    
+    <div>
+      <label for="shift" class="block text-gray-300 mb-2">Select New Shift:</label>
+      <select name="new_shift" id="shift" class="w-full p-2 bg-gray-700 text-white rounded border border-custom focus:outline-none focus:border-green-500">
+        <option value="Morning" {% if nurse.shift == "Morning" %}selected{% endif %}>Morning</option>
+        <option value="Evening" {% if nurse.shift == "Evening" %}selected{% endif %}>Evening</option>
+        <option value="Night" {% if nurse.shift == "Night" %}selected{% endif %}>Night</option>
+      </select>
+    </div>
+    
+    <button type="submit" class="bg-custom-green hover:bg-green-600 text-white py-2 px-4 rounded flex items-center w-full justify-center">
+      <i class="fas fa-save mr-2"></i> Update Shift
+    </button>
+  </form>
+</div>
+{% endblock %}

@@ -47,7 +47,9 @@ Doctor Dashboard
                             <span class="px-2 py-1 bg-yellow-500 text-gray-900 text-sm font-semibold rounded-lg">Pending</span>
                         {% elif appointment.status == "Completed" %}
                             <span class="px-2 py-1 bg-green-500 text-gray-900 text-sm font-semibold rounded-lg">Completed</span>
-                        {% else %}
+                            {% elif appointment.status == "Confirmed" %}
+                            <span class="px-2 py-1 bg-green-500 text-gray-900 text-sm font-semibold rounded-lg">Confirmed</span>
+                            {% else %}
                             <span class="px-2 py-1 bg-red-500 text-gray-900 text-sm font-semibold rounded-lg">Canceled</span>
                         {% endif %}
                     </td>

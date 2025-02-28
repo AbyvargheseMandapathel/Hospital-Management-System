@@ -140,7 +140,7 @@
         </ul>
         {% endif %}
 
-        <form id="signupForm" action="{% url 'signup' %}" method="POST" enctype="multipart/form-data">
+        <form id="signupForm" action="{% url 'signup' %}" method="POST" enctype="multipart/form-data" >
             {% csrf_token %}
 
             <!-- Step 1 -->

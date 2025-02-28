@@ -33,6 +33,7 @@ def signup(request):
         username = request.POST.get('username')
         print(username)
         password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         email = request.POST.get('email')
@@ -49,6 +50,12 @@ def signup(request):
             messages.error(request, "Email already exists.")
             return redirect('signup')
 
+        # Check if passwords match  
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect("signup")
+        
+        
         try:
             # Create the user
             user = User.objects.create_user(

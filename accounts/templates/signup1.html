@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management Signup</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400");
+        @import url("https://fonts.googleapis.com/css?family=Playfair+Display");
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: black;
+            font-family: "Source Sans Pro", sans-serif;
+            color: white;
+        }
+
+        .container {
+            width: 800px;
+            background: #1c1c1c;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        h1,
+        h2 {
+            font-family: "Playfair Display", serif;
+            color: #809bce;
+            margin-bottom: 10px;
+        }
+
+        .messages {
+            list-style: none;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .messages .success {
+            background: green;
+            color: white;
+            padding: 10px;
+        }
+
+        .messages .error {
+            background: red;
+            color: white;
+            padding: 10px;
+        }
+
+        form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #2b2b2b;
+            color: white;
+            margin-top: 5px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #809bce;
+            box-shadow: 0 0 4px rgba(128, 155, 206, 0.5);
+            transition: 0.3s;
+        }
+
+        button {
+            background: #129D72;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #0e7a59;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .user-fields {
+            display: none;
+        }
+
+        .user-fields.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Hospital Management Signup</h1>
+
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form id="signupForm" action="{% url 'signup' %}" method="POST" enctype="multipart/form-data" >
+            {% csrf_token %}
+
+            <!-- Step 1 -->
+            <div id="step1" class="step active">
+                <h2>Step 1: Account Details</h2>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <label for="confirm_password">Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+
+                <button type="button" onclick="goToStep(2)">Next</button>
+            </div>
+
+            <!-- Step 2 -->
+            <div id="step2" class="step">
+                <h2>Step 2: Personal Details</h2>
+                <label for="first_name">First Name:</label>
+                <input type="text" id="first_name" name="first_name" required>
+
+                <label for="last_name">Last Name:</label>
+                <input type="text" id="last_name" name="last_name" required>
+
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <button type="button" onclick="goToStep(1)">Back</button>
+                <button type="button" onclick="goToStep(3)">Next</button>
+            </div>
+
+            <!-- Step 3 -->
+            <div id="step3" class="step">
+                <h2>Step 3: User Type</h2>
+                <label for="user_type">User Type:</label>
+                <select id="user_type" name="user_type" onchange="toggleUserFields()">
+                    <option value="">Select User Type</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="nurse">Nurse</option>
+                    <option value="patient">Patient</option>
+                </select>
+
+                <!-- Doctor Fields -->
+                <div id="doctor-fields" class="user-fields">
+                    <label for="specialization">Specialization:</label>
+                    <input type="text" id="specialization" name="specialization">
+
+                    <label for="doctor_phone">doctor phone:</label>
+                    <input type="tel" id="doctor_phone" name="doctor_phone">
+
+                    <label for="experience">Years of Experience:</label>
+                    <input type="number" id="experience" name="experience">
+
+                    <label for="certificate_file">certificate_file</label>
+                    <input type="file" id="certificate_file" name="certificate_file">
+                </div>
+
+                <!-- Nurse Fields -->
+                <!-- Nurse Fields -->
+                <div id="nurse-fields" class="user-fields">
+                    <label for="shift">Shift:</label>
+                    <input type="text" id="shift" name="shift">
+
+                    <!-- Phone Number Field -->
+                    <label for="nurse_phone">Phone Number:</label>
+                    <input type="tel" id="nurse_phone" name="nurse_phone" pattern="[0-9]{10}"
+                        placeholder="Enter 10-digit phone number">
+                </div>
+
+                <!-- Patient Fields -->
+                <div id="patient-fields" class="user-fields">
+                    <label for="patient_phone">Phone:</label>
+                    <input type="tel" id="patient_phone" name="patient_phone">
+                </div>
+
+                <button type="button" onclick="goToStep(2)">Back</button>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Restrict Date of Birth to Past Dates
+        window.addEventListener("DOMContentLoaded", function () {
+            const dobInput = document.getElementById("dob");
+            const today = new Date().toISOString().split("T")[0];
+            dobInput.setAttribute("max", today);
+        });
+
+        function goToStep(step) {
+            document.querySelectorAll(".step").forEach((stepDiv, index) => {
+                stepDiv.classList.toggle("active", index + 1 === step);
+            });
+        }
+
+        function toggleUserFields() {
+            const userType = document.getElementById("user_type").value;
+            document.querySelectorAll(".user-fields").forEach((fieldGroup) => {
+                fieldGroup.classList.remove("active");
+            });
+            if (userType) {
+                document.getElementById(userType + "-fields").classList.add("active");
+            }
+        }
+    </script>
+
+</body>
+
+</html>

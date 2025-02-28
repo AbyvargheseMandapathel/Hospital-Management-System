@@ -1,233 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hospital Management Signup</title>
-    <link rel="stylesheet" href="style.css">
-
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400");
-        @import url("https://fonts.googleapis.com/css?family=Playfair+Display");
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: black;
-            font-family: "Source Sans Pro", sans-serif;
-            color: white;
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
         }
-
-        .container {
-            width: 800px;
-            background: #1c1c1c;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        .bg-custom-dark {
+            background-color: #1a202c;
         }
-
-        h1,
-        h2 {
-            font-family: "Playfair Display", serif;
-            color: #809bce;
-            margin-bottom: 10px;
+        .text-custom-green {
+            color: #4ade80;
         }
-
-        .messages {
-            list-style: none;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+        .border-custom-green {
+            border-color: #4ade80;
         }
-
-        .messages .success {
-            background: green;
-            color: white;
-            padding: 10px;
-        }
-
-        .messages .error {
-            background: red;
-            color: white;
-            padding: 10px;
-        }
-
-        form {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 10px;
-            display: block;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #444;
-            border-radius: 6px;
-            font-size: 14px;
-            background: #2b2b2b;
-            color: white;
-            margin-top: 5px;
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #809bce;
-            box-shadow: 0 0 4px rgba(128, 155, 206, 0.5);
-            transition: 0.3s;
-        }
-
-        button {
-            background: #129D72;
-            color: white;
-            padding: 12px 15px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            margin-top: 15px;
-        }
-
-        button:hover {
-            background: #0e7a59;
-        }
-
-        .step {
-            display: none;
-        }
-
-        .step.active {
-            display: block;
-        }
-
-        .user-fields {
-            display: none;
-        }
-
-        .user-fields.active {
-            display: block;
+        .hover-custom-green:hover {
+            background-color: #38a169;
         }
     </style>
 </head>
 
-<body>
-
-    <div class="container">
-        <h1>Hospital Management Signup</h1>
-
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
-        <form id="signupForm" action="{% url 'signup' %}" method="POST" enctype="multipart/form-data" >
-            {% csrf_token %}
-
-            <!-- Step 1 -->
-            <div id="step1" class="step active">
-                <h2>Step 1: Account Details</h2>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-
-                <label for="confirm_password">Confirm Password:</label>
-                <input type="password" id="confirm_password" name="confirm_password" required>
-
-                <button type="button" onclick="goToStep(2)">Next</button>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-green-900">
+    <div class="flex w-full max-w-4xl bg-custom-dark border border-gray-700 rounded-3xl shadow-xl overflow-hidden fade-in">
+        <!-- Form Section -->
+        <div class="w-full md:w-1/2 p-8">
+            <!-- Hospital Logo -->
+            <div class="flex justify-center mb-6">
+                <img src="https://via.placeholder.com/100" alt="Hospital Logo" class="h-16 w-auto">
             </div>
 
-            <!-- Step 2 -->
-            <div id="step2" class="step">
-                <h2>Step 2: Personal Details</h2>
-                <label for="first_name">First Name:</label>
-                <input type="text" id="first_name" name="first_name" required>
+            <h1 class="text-4xl font-bold text-center text-white mb-4 fade-in">Hospital Management Signup</h1>
 
-                <label for="last_name">Last Name:</label>
-                <input type="text" id="last_name" name="last_name" required>
+            {% if messages %}
+            <ul class="messages mb-4 fade-in">
+                {% for message in messages %}
+                <li class="{{ message.tags }} text-red-500 text-sm">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
 
-                <label for="dob">Date of Birth:</label>
-                <input type="date" id="dob" name="dob" required>
+            <form id="signupForm" action="{% url 'signup' %}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
 
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+                <!-- Step 1 -->
+                <div id="step1" class="step active space-y-4">
+                    <h2 class="text-2xl text-custom-green font-semibold mb-4">Step 1: Account Details</h2>
+                    
+                    <div id="password-error" class="text-red-500 text-sm mb-4 hidden"></div>
 
-                <button type="button" onclick="goToStep(1)">Back</button>
-                <button type="button" onclick="goToStep(3)">Next</button>
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-300">Username</label>
+                        <input type="text" id="username" name="username" 
+                            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                        <input type="password" id="password" name="password" 
+                            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-300">Confirm Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" 
+                            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                            required>
+                    </div>
+
+                    <button type="button" onclick="validatePasswords()" 
+                        class="w-full bg-custom-green hover-custom-green text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200">
+                        Next
+                    </button>
+                </div>
+
+                <!-- Step 2 -->
+                <div id="step2" class="step hidden space-y-4">
+                    <h2 class="text-2xl text-custom-green font-semibold mb-4">Step 2: Personal Details</h2>
+                    
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-300">First Name</label>
+                        <input type="text" id="first_name" name="first_name" 
+                            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-300">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" 
+                            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="dob" class="block text-sm font-medium text-gray-300">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" 
+                            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300">Email</label>
+                        <input type="email" id="email" name="email" 
+                            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                            required>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button type="button" onclick="goToStep(1)" 
+                            class="w-1/2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200">
+                            Back
+                        </button>
+                        <button type="button" onclick="goToStep(3)" 
+                            class="w-1/2 bg-custom-green hover-custom-green text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200">
+                            Next
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div id="step3" class="step hidden space-y-4">
+                    <h2 class="text-2xl text-custom-green font-semibold mb-4">Step 3: User Type</h2>
+                    
+                    <div>
+                        <label for="user_type" class="block text-sm font-medium text-gray-300">User Type</label>
+                        <select id="user_type" name="user_type" onchange="toggleUserFields()" 
+                            class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 bg-gray-800">
+                            <option value="">Select User Type</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="nurse">Nurse</option>
+                            <option value="patient">Patient</option>
+                        </select>
+                    </div>
+
+                    <!-- Doctor Fields -->
+                    <div id="doctor-fields" class="user-fields hidden space-y-4">
+                        <div>
+                            <label for="specialization" class="block text-sm font-medium text-gray-300">Specialization</label>
+                            <input type="text" id="specialization" name="specialization" 
+                                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
+                        </div>
+
+                        <div>
+                            <label for="doctor_phone" class="block text-sm font-medium text-gray-300">Phone</label>
+                            <input type="tel" id="doctor_phone" name="doctor_phone" 
+                                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
+                        </div>
+
+                        <div>
+                            <label for="experience" class="block text-sm font-medium text-gray-300">Years of Experience</label>
+                            <input type="number" id="experience" name="experience" 
+                                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
+                        </div>
+
+                        <div>
+                            <label for="certificate_file" class="block text-sm font-medium text-gray-300">Certificate File</label>
+                            <input type="file" id="certificate_file" name="certificate_file" 
+                                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 bg-gray-800">
+                        </div>
+                    </div>
+
+                    <!-- Nurse Fields -->
+                    <div id="nurse-fields" class="user-fields hidden space-y-4">
+                        <div>
+                            <label for="shift" class="block text-sm font-medium text-gray-300">Shift</label>
+                            <input type="text" id="shift" name="shift" 
+                                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
+                        </div>
+
+                        <div>
+                            <label for="nurse_phone" class="block text-sm font-medium text-gray-300">Phone Number</label>
+                            <input type="tel" id="nurse_phone" name="nurse_phone" pattern="[0-9]{10}" 
+                                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
+                                placeholder="Enter 10-digit phone number">
+                        </div>
+                    </div>
+
+                    <!-- Patient Fields -->
+                    <div id="patient-fields" class="user-fields hidden space-y-4">
+                        <div>
+                            <label for="patient_phone" class="block text-sm font-medium text-gray-300">Phone</label>
+                            <input type="tel" id="patient_phone" name="patient_phone" 
+                                class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button type="button" onclick="goToStep(2)" 
+                            class="w-1/2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200">
+                            Back
+                        </button>
+                        <button type="submit" 
+                            class="w-1/2 bg-custom-green hover-custom-green text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200">
+                            Submit
+                        </button>
+                    </div>
+                
+                </div>
+            </form>
+        </div>
+
+        <!-- Image Section -->
+        <div class="hidden md:block md:w-1/2 bg-gradient-to-br from-blue-800 to-green-800 p-6 relative fade-in">
+            <div class="absolute top-4 right-4 text-white text-xs font-semibold">
+                <p>Secure & Reliable</p>
+                <p>Hospital Management System</p>
             </div>
-
-            <!-- Step 3 -->
-            <div id="step3" class="step">
-                <h2>Step 3: User Type</h2>
-                <label for="user_type">User Type:</label>
-                <select id="user_type" name="user_type" onchange="toggleUserFields()">
-                    <option value="">Select User Type</option>
-                    <option value="doctor">Doctor</option>
-                    <option value="nurse">Nurse</option>
-                    <option value="patient">Patient</option>
-                </select>
-
-                <!-- Doctor Fields -->
-                <div id="doctor-fields" class="user-fields">
-                    <label for="specialization">Specialization:</label>
-                    <input type="text" id="specialization" name="specialization">
-
-                    <label for="doctor_phone">doctor phone:</label>
-                    <input type="tel" id="doctor_phone" name="doctor_phone">
-
-                    <label for="experience">Years of Experience:</label>
-                    <input type="number" id="experience" name="experience">
-
-                    <label for="certificate_file">certificate_file</label>
-                    <input type="file" id="certificate_file" name="certificate_file">
-                </div>
-
-                <!-- Nurse Fields -->
-                <!-- Nurse Fields -->
-                <div id="nurse-fields" class="user-fields">
-                    <label for="shift">Shift:</label>
-                    <input type="text" id="shift" name="shift">
-
-                    <!-- Phone Number Field -->
-                    <label for="nurse_phone">Phone Number:</label>
-                    <input type="tel" id="nurse_phone" name="nurse_phone" pattern="[0-9]{10}"
-                        placeholder="Enter 10-digit phone number">
-                </div>
-
-                <!-- Patient Fields -->
-                <div id="patient-fields" class="user-fields">
-                    <label for="patient_phone">Phone:</label>
-                    <input type="tel" id="patient_phone" name="patient_phone">
-                </div>
-
-                <button type="button" onclick="goToStep(2)">Back</button>
-                <button type="submit">Submit</button>
+            <div class="grid grid-cols-1 gap-4 mt-16">
+                <img src="https://picsum.photos/300/200?random=3" alt="Hospital Image 1" class="w-full h-48 rounded-lg shadow-md object-cover fade-in">
+                <img src="https://picsum.photos/300/200?random=4" alt="Hospital Image 2" class="w-full h-48 rounded-lg shadow-md object-cover fade-in">
             </div>
-        </form>
+        </div>
     </div>
 
     <script>
+        // Password Validation
+        function validatePasswords() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const errorDiv = document.getElementById('password-error');
+
+            errorDiv.classList.add('hidden');
+
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = "Passwords do not match";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            goToStep(2);
+        }
+
         // Restrict Date of Birth to Past Dates
         window.addEventListener("DOMContentLoaded", function () {
             const dobInput = document.getElementById("dob");
@@ -237,21 +250,27 @@
 
         function goToStep(step) {
             document.querySelectorAll(".step").forEach((stepDiv, index) => {
-                stepDiv.classList.toggle("active", index + 1 === step);
+                stepDiv.classList.toggle("hidden", true);
+                stepDiv.classList.toggle("block", false);
+                if (index + 1 === step) {
+                    stepDiv.classList.remove("hidden");
+                    stepDiv.classList.add("block");
+                }
             });
         }
 
         function toggleUserFields() {
             const userType = document.getElementById("user_type").value;
             document.querySelectorAll(".user-fields").forEach((fieldGroup) => {
-                fieldGroup.classList.remove("active");
+                fieldGroup.classList.add("hidden");
+                fieldGroup.classList.remove("block");
             });
             if (userType) {
-                document.getElementById(userType + "-fields").classList.add("active");
+                const targetFields = document.getElementById(userType + "-fields");
+                targetFields.classList.remove("hidden");
+                targetFields.classList.add("block");
             }
         }
     </script>
-
 </body>
-
 </html>

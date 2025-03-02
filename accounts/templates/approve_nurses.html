@@ -1,0 +1,58 @@
+{% extends base_template %}
+
+
+{% block title %}Nurse Applications{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4">
+    <h1 class="text-3xl font-semibold text-center mb-8 text-gray-300">Nurse Applications</h1>
+
+    <!-- MESSAGE SECTION -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-3 rounded-md {% if message.tags == 'success' %} bg-green-800 text-green-300 {% elif message.tags == 'error' %} bg-red-800 text-red-300 {% else %} bg-gray-800 text-gray-300 {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- nurse Applications Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full table-auto bg-custom-dark border border-gray-700 rounded-lg shadow-md">
+            <thead class="bg-gray-800 text-gray-400">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-medium">Nurse</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium">Shift</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nurse in nurses %}
+                    <tr class="border-b border-gray-700 hover:bg-gray-700">
+                        <td class="px-6 py-4 text-sm text-gray-300">{{ nurse.user.first_name }} {{ nurse.user.last_name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-300">{{ nurse.shift }}</td>
+                        <td class="px-6 py-4 space-y-2">
+                            <!-- Approve Button -->
+                            <form method="POST" action="{% url 'approve_nurse' nurse.id %}" class="inline-block">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg w-full md:w-auto">
+                                    Approve
+                                </button>
+                            </form>
+                            <!-- Reject Button -->
+                            <form method="POST" action="{% url 'reject_nurse' nurse.id %}" class="inline-block">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg w-full md:w-auto">
+                                    Reject
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

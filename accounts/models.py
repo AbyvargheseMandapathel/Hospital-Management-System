@@ -71,6 +71,7 @@ class Nurse(models.Model):
     user = models.OneToOneField('accounts.Profile', on_delete=models.CASCADE, related_name='nurse')
     phone_number = models.CharField(max_length=15)
     shift = models.CharField(max_length=50, help_text="Shift timing (e.g., Morning, Evening, Night)")
+    is_approved = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Nurse: {self.user.first_name} {self.user.last_name} ({self.shift})"
@@ -191,7 +192,7 @@ class Appointment(models.Model):
 
     def assign_random_nurse(self):
         """Assign a random available nurse to this appointment."""
-        nurses = Nurse.objects.all()
+        nurses = Nurse.objects.filter(is_approved=True)
         if nurses.exists():
             self.nurse = random.choice(nurses)
     

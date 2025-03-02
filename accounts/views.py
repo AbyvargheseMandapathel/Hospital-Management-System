@@ -1126,3 +1126,52 @@ def change_shift_view(request):
             messages.error(request, "Invalid shift selection.")
 
     return render(request, "change_shift.html", {"nurse": nurse})
+
+
+
+
+@user_passes_test(is_admin, login_url='login')
+def approve_nurses(request):
+    """ View to fetch and display unapproved nurses """
+
+    nurses = Nurse.objects.filter(is_approved=False).select_related('user')
+    print(nurses)
+    return render(request, 'approve_nurses.html', {'nurses': nurses})
+
+@user_passes_test(is_admin, login_url='login')
+def approve_nurse(request, nurse_id):
+    """ View to approve a doctor and send email notification """
+    try:
+        nurse = get_object_or_404(Nurse, id=nurse_id, is_approved=False)
+        nurse.is_approved = True  # Approve doctor
+        nurse.status = 'Approved'
+        nurse.save()
+
+        # Send approval email
+        subject = "Your nurse Application Has Been Approved"
+        message = f"Dear {nurse.user.first_name},\n\nYour application as a nurse has been approved. You can now access the platform as a verified doctor.\n\nBest regards,\nAdmin Team"
+        send_status_email(nurse.user.email, subject, message)
+
+        messages.success(request, f"nurse {nurse.user.username} has been approved successfully.")
+    except Profile.DoesNotExist:
+        messages.error(request, "nurse not found or already approved.")
+    
+    return redirect('approve_nurses')
+
+@user_passes_test(is_admin, login_url='login')
+def reject_nurse(request, nurse_id):
+    """ View to reject and delete an unapproved doctor and send email notification """
+    try:
+        nurse = Profile.objects.get(id=nurse_id, user_type='nurse', is_approved=False)
+        
+        # Send rejection email before deleting
+        subject = "Your nurse Application Has Been Rejected"
+        message = f"Dear {nurse.user.first_name},\n\nWe regret to inform you that your application as a doctor has been rejected. If you have any questions, please contact our support team.\n\nBest regards,\nAdmin Team"
+        send_status_email(nurse.user.email, subject, message)
+        nurse.status = 'Rejected'
+        nurse.save()
+        messages.success(request, f"Nurse {nurse.user.username} has been rejected and removed.")
+    except Profile.DoesNotExist:
+        messages.error(request, "Doctor not found or already rejected.")
+    
+    return redirect('approve_nurses')

@@ -30,6 +30,10 @@ def doctor_dashboard(request):
 
 @login_required
 def nurse_dashboard(request):
+    
+    if not hasattr(request.user, "nurse") or not request.user.nurse.is_approved:
+        return render(request, "error.html", {"message": "Application not accepted by admin"})
+    
     """Displays the nurse's assigned appointments."""
     appointments = Appointment.objects.filter(nurse=request.user.nurse)
     return render(request, "nurse_dashboard.html", {"appointments": appointments})

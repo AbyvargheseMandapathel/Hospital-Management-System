@@ -67,6 +67,12 @@ urlpatterns = [
     path("list/", feedback_list, name="feedback_list"),
     path("reply/<int:feedback_id>/", admin_reply_feedback, name="admin_reply_feedback"),
     path("change-shift/", change_shift_view, name="change_shift"),
+    
+    
+    path('approve-nurses/', approve_nurses, name='approve_nurses'),
+    
+    path('approve-nurse/<int:nurse_id>/', approve_nurse, name='approve_nurse'),
+    path('reject-nurse/<int:nurse_id>/', reject_nurse, name='reject_nurse'),
 
 ]
 

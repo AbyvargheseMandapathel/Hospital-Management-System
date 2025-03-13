@@ -75,6 +75,7 @@ urlpatterns = [
     path('reject-nurse/<int:nurse_id>/', reject_nurse, name='reject_nurse'),
     
     path('approved-nurses/', approved_nurses, name='approved_nurses'),
+    path('deactivate-nurse/<int:nurse_id>/', deactivate_nurse, name='deactivate_nurse'),
 
 ]
 

@@ -45,6 +45,7 @@
                 <tr class="bg-gray-900 text-gray-400">
                     <th class="px-4 py-2 border border-gray-600 text-left">Name</th>
                     <th class="px-4 py-2 border border-gray-600 text-left">Shift</th>
+                    <th class="px-4 py-2 border border-gray-600 text-left">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,6 +56,13 @@
                     </td>
                     <td class="px-4 py-3 border border-gray-600 text-gray-300">
                         {{ nurse.shift }}
+                    </td>
+                    <td class="px-4 py-3 border border-gray-600 text-center">
+                        <a href="{% url 'deactivate_nurse' nurse.id %}" 
+                           onclick="return confirm('Are you sure you want to deactivate this nurse?');"
+                           class="px-4 py-2 bg-red-600 text-gray-200 rounded-md hover:bg-red-700 transition">
+                            Deactivate
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}

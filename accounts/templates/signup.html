@@ -173,8 +173,12 @@
                     <div id="nurse-fields" class="user-fields hidden space-y-4">
                         <div>
                             <label for="shift" class="block text-sm font-medium text-gray-300">Shift</label>
-                            <input type="text" id="shift" name="shift" 
+                            <select id="shift" name="shift" 
                                 class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
+                                <option value="" selected disabled>Select Shift</option>
+                                <option value="Morning">Morning</option>
+                                <option value="Night">Night</option>
+                            </select>
                         </div>
 
                         <div>

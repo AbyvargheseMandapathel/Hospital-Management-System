@@ -6,6 +6,7 @@ from django.contrib import messages
 from .views import *
 
 @login_required
+@never_cache
 def doctor_dashboard(request):
     if not hasattr(request.user, "doctor") or not request.user.doctor.is_approved:
         return render(request, "error.html", {"message": "Application not accepted by admin"})
@@ -29,6 +30,7 @@ def doctor_dashboard(request):
     return render(request, "doctor_dashboard.html", context)
 
 @login_required
+@never_cache
 def nurse_dashboard(request):
     
     if not hasattr(request.user, "nurse") or not request.user.nurse.is_approved:
@@ -41,6 +43,7 @@ def nurse_dashboard(request):
 
 # views.py
 @user_passes_test(is_patient,login_url='login')
+@never_cache
 def patient_dashboard(request):
     # Ensure the user is a patient
     if not hasattr(request.user, 'patient'):
@@ -69,6 +72,7 @@ def patient_dashboard(request):
     return render(request, 'patient_dashboard.html', context)
 
 @login_required
+@never_cache
 def appointment_detail(request, appointment_id):
     # Fetch the appointment object
     appointment = get_object_or_404(Appointment, id=appointment_id)

@@ -12,3 +12,4 @@ def send_status_email(user_email, subject, message):
         [user_email],
         fail_silently=False,
     )
+    

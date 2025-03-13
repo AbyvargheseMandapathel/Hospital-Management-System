@@ -236,6 +236,7 @@ def password_reset_confirm(request, uidb64, token):
     return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
 
 @login_required
+@never_cache
 def admin_dashboard(request):
     # Fetch total counts
     total_doctors = Doctor.objects.count()

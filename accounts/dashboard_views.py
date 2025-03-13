@@ -72,7 +72,7 @@ def patient_dashboard(request):
     return render(request, 'patient_dashboard.html', context)
 
 @login_required
-@never_cache
+
 def appointment_detail(request, appointment_id):
     # Fetch the appointment object
     appointment = get_object_or_404(Appointment, id=appointment_id)

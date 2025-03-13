@@ -17,7 +17,6 @@
       <label for="shift" class="block text-gray-300 mb-2">Select New Shift:</label>
       <select name="new_shift" id="shift" class="w-full p-2 bg-gray-700 text-white rounded border border-custom focus:outline-none focus:border-green-500">
         <option value="Morning" {% if nurse.shift == "Morning" %}selected{% endif %}>Morning</option>
-        <option value="Evening" {% if nurse.shift == "Evening" %}selected{% endif %}>Evening</option>
         <option value="Night" {% if nurse.shift == "Night" %}selected{% endif %}>Night</option>
       </select>
     </div>

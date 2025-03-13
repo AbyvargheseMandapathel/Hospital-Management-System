@@ -1211,3 +1211,30 @@ def disable_secret_key():
                     file.write("# " + line)  
                 else:
                     file.write(line)
+                    
+                    
+@user_passes_test(is_admin, login_url='login')
+def approved_nurses(request):
+    """ View to list all approved nurses with filtering options """
+    nurses = Nurse.objects.filter(is_approved=True).select_related('user')
+
+    # Get unique shifts
+    shift_choices = Nurse.objects.filter(is_approved=True).values_list('shift', flat=True).distinct()
+
+    # Get filter values from request
+    name_query = request.GET.get('name', '').strip()
+    shift_query = request.GET.get('shift', '').strip()
+
+    # Apply filters
+    if name_query:
+        nurses = nurses.filter(user__first_name__icontains=name_query) | nurses.filter(user__last_name__icontains=name_query)
+
+    if shift_query:
+        nurses = nurses.filter(shift=shift_query)
+
+    return render(request, 'approved_nurses.html', {
+        'nurses': nurses,
+        'name_query': name_query,
+        'shift_query': shift_query,
+        'shift_choices': shift_choices
+    })

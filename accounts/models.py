@@ -191,10 +191,29 @@ class Appointment(models.Model):
         return self.date < now
 
     def assign_random_nurse(self):
-        """Assign a random available nurse to this appointment."""
+        """Assign a random available nurse to this appointment who is not on leave."""
+        # Get all approved nurses
         nurses = Nurse.objects.filter(is_approved=True)
-        if nurses.exists():
-            self.nurse = random.choice(nurses)
+        
+        # Filter out nurses who are on approved leave on the appointment date
+        available_nurses = []
+        for nurse in nurses:
+            nurse_on_leave = LeaveApplication.objects.filter(
+                user=nurse.user,
+                status='Approved',
+                start_date__lte=self.date,
+                end_date__gte=self.date
+            ).exists()
+            
+            if not nurse_on_leave:
+                available_nurses.append(nurse)
+        
+        # Assign a random nurse from available nurses
+        if available_nurses:
+            self.nurse = random.choice(available_nurses)
+        else:
+            # If no nurses are available, don't assign one
+            self.nurse = None
     
     
 class DoctorAvailability(models.Model):
@@ -279,3 +298,19 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"Feedback from {self.user.username}"
+    
+class LeaveApplication(models.Model):
+    LEAVE_STATUS = (
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    )
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(max_length=20, choices=LEAVE_STATUS, default='Pending')
+    applied_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s leave application from {self.start_date} to {self.end_date}"

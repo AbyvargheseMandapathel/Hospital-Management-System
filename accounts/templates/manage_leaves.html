@@ -1,0 +1,94 @@
+{% extends "base/admin_base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-6 bg-gray-800 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-semibold text-custom-green mb-6">Manage Leave Applications</h2>
+    
+    <!-- Filter Form -->
+    <form method="GET" class="mb-6 flex flex-wrap gap-4 bg-gray-700 p-4 rounded-lg">
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Status</label>
+            <select name="status" class="p-2 border border-gray-300 rounded-md text-black">
+                <option value="">All Status</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Approved" {% if status_filter == 'Approved' %}selected{% endif %}>Approved</option>
+                <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Employee Name</label>
+            <input type="text" name="name" value="{{ name_filter }}" 
+                   class="p-2 border border-gray-300 rounded-md text-black"
+                   placeholder="Search by name">
+        </div>
+        
+        <div class="flex items-end">
+            <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200">
+                Filter
+            </button>
+            <a href="{% url 'manage_leaves' %}" class="ml-2 bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition duration-200">
+                Reset
+            </a>
+        </div>
+    </form>
+    
+    {% if leaves %}
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-700 text-gray-300">
+                <thead>
+                    <tr class="bg-gray-900">
+                        <th class="p-3 border border-gray-700 text-left">Employee</th>
+                        <th class="p-3 border border-gray-700 text-left">Role</th>
+                        <th class="p-3 border border-gray-700 text-left">Period</th>
+                        <th class="p-3 border border-gray-700 text-left">Reason</th>
+                        <th class="p-3 border border-gray-700 text-left">Status</th>
+                        <th class="p-3 border border-gray-700 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr class="bg-gray-800 hover:bg-gray-700">
+                        <td class="p-3 border border-gray-700">{{ leave.user.get_full_name }}</td>
+                        <td class="p-3 border border-gray-700">{{ leave.user.user_type|title }}</td>
+                        <td class="p-3 border border-gray-700">
+                            {{ leave.start_date|date:"M d, Y" }} - {{ leave.end_date|date:"M d, Y" }}
+                        </td>
+                        <td class="p-3 border border-gray-700">{{ leave.reason|truncatechars:50 }}</td>
+                        <td class="p-3 border border-gray-700">
+                            <span class="px-2 py-1 rounded-full text-xs 
+                                {% if leave.status == 'Approved' %}bg-green-600
+                                {% elif leave.status == 'Rejected' %}bg-red-600
+                                {% else %}bg-yellow-600{% endif %}">
+                                {{ leave.status }}
+                            </span>
+                        </td>
+                        <td class="p-3 border border-gray-700">
+                            {% if leave.status == 'Pending' %}
+                            <form method="post" action="{% url 'process_leave' leave.id %}" class="flex space-x-2">
+                                {% csrf_token %}
+                                <button type="submit" name="action" value="approve" 
+                                        class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                                    Approve
+                                </button>
+                                <button type="submit" name="action" value="reject" 
+                                        class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                                    Reject
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-gray-500">Processed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="bg-gray-700 p-6 rounded-lg text-center">
+            <p class="text-gray-400">No leave applications found matching your criteria.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

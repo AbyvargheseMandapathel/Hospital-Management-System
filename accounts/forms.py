@@ -102,3 +102,102 @@ class VitalsRecordForm(forms.ModelForm):
         widgets = {
             "notes": forms.Textarea(attrs={"rows": 3, "class": "form-input"})
         }
+        
+        
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['first_name', 'last_name', 'email', 'place', 'dob']
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            }),
+            'place': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            }),
+            'dob': forms.DateInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+                'type': 'date',
+                'max': date.today().strftime("%Y-%m-%d"),  # Restrict future dates
+            }),
+        }
+        
+class NurseUpdateForm(forms.ModelForm):
+    SHIFT_CHOICES = [
+        ('Morning', 'Morning'),
+        ('Evening', 'Evening'),
+    ]
+
+    phone_number = forms.CharField(
+        max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            'pattern': '[0-9]{10}',
+            'title': 'Please enter a 10-digit phone number'
+        })
+    )
+    
+    shift = forms.ChoiceField(
+        choices=SHIFT_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+        })
+    )
+    
+    class Meta:
+        model = Nurse
+        fields = ['phone_number', 'shift']
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if not phone_number:
+            raise forms.ValidationError("Phone number is required")
+        if not phone_number.isdigit():
+            raise forms.ValidationError("Phone number must contain only digits")
+        if len(phone_number) != 10:
+            raise forms.ValidationError("Phone number must be exactly 10 digits")
+        return phone_number
+
+class DoctorUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Doctor
+        fields = ['phone_number', 'specialization', 'experience']
+        widgets = {
+            'phone_number': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            }),
+            'specialization': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            }),
+            'experience': forms.NumberInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            }),
+        }
+        
+class LeaveApplicationForm(forms.ModelForm):
+    class Meta:
+        model = LeaveApplication
+        fields = ['start_date', 'end_date', 'reason']
+        widgets = {
+            'start_date': forms.DateInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+                'type': 'date',
+                'min': date.today().strftime("%Y-%m-%d"),
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+                'type': 'date',
+                'min': date.today().strftime("%Y-%m-%d"),
+            }),
+            'reason': forms.Textarea(attrs={
+                'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+                'rows': 4,
+            }),
+        }

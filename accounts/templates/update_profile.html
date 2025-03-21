@@ -1,0 +1,78 @@
+{% extends base_template %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 bg-gray-800 rounded-lg shadow-lg fade-in">
+  <h2 class="text-2xl font-semibold text-custom-green mb-6">Update Profile</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-600{% else %}bg-red-600{% endif %} text-white">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- Profile Form -->
+    <div class="space-y-4">
+      <h3 class="text-xl font-semibold text-gray-300">Basic Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for field in profile_form %}
+          <div class="flex flex-col">
+            <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-400 mb-1">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <p class="text-red-500 text-xs mt-1">{{ field.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Nurse Form (if applicable) -->
+    {% if nurse_form %}
+      <div class="space-y-4">
+        <h3 class="text-xl font-semibold text-gray-300">Nurse Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for field in nurse_form %}
+            <div class="flex flex-col">
+              <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-400 mb-1">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ field.errors|join:", " }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Doctor Form (if applicable) -->
+    {% if doctor_form %}
+      <div class="space-y-4">
+        <h3 class="text-xl font-semibold text-gray-300">Doctor Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for field in doctor_form %}
+            <div class="flex flex-col">
+              <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-400 mb-1">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ field.errors|join:", " }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Submit Button -->
+    <div class="flex justify-end">
+      <button type="submit" class="bg-custom-green hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
+        Update Profile
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

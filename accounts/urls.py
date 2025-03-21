@@ -76,6 +76,12 @@ urlpatterns = [
     
     path('approved-nurses/', approved_nurses, name='approved_nurses'),
     path('deactivate-nurse/<int:nurse_id>/', deactivate_nurse, name='deactivate_nurse'),
+    path('update-profile/', update_profile, name='update_profile'),
+    
+    path('apply-leave/', apply_leave, name='apply_leave'),
+    path('view-leaves/', view_leaves, name='view_leaves'),
+    path('manage-leaves/', manage_leaves, name='manage_leaves'),
+    path('process-leave/<int:leave_id>/', process_leave, name='process_leave'),
 
 ]
 

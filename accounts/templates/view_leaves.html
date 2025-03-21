@@ -1,0 +1,41 @@
+{% extends base_template %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 bg-gray-800 rounded-lg shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-custom-green">My Leave Applications</h2>
+        <a href="{% url 'apply_leave' %}" class="bg-custom-green text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200">
+            <i class="fas fa-plus mr-2"></i> New Application
+        </a>
+    </div>
+    
+    {% if leaves %}
+        <div class="space-y-4">
+            {% for leave in leaves %}
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-lg font-medium">{{ leave.start_date|date:"M d, Y" }} - {{ leave.end_date|date:"M d, Y" }}</p>
+                            <p class="text-gray-400 mt-1">{{ leave.reason }}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-sm 
+                            {% if leave.status == 'Approved' %}bg-green-600
+                            {% elif leave.status == 'Rejected' %}bg-red-600
+                            {% else %}bg-yellow-600{% endif %}">
+                            {{ leave.status }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">Applied on: {{ leave.applied_date|date:"M d, Y H:i" }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-gray-700 p-6 rounded-lg text-center">
+            <p class="text-gray-400">You haven't applied for any leave yet.</p>
+            <a href="{% url 'apply_leave' %}" class="inline-block mt-4 bg-custom-green text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200">
+                Apply for Leave
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -67,6 +67,24 @@
       </div>
     {% endif %}
 
+    <!-- After the doctor form section, add this patient form section -->
+    {% if patient_form %}
+      <div class="space-y-4">
+        <h3 class="text-xl font-semibold text-gray-300">Patient Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for field in patient_form %}
+            <div class="flex flex-col">
+              <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-400 mb-1">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ field.errors|join:", " }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
     <!-- Submit Button -->
     <div class="flex justify-end">
       <button type="submit" class="bg-custom-green hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">

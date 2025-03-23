@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Doctors - MediCare Hospital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="font-sans bg-gray-900 text-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 shadow-lg fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-blue-400">MediCare</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'predict_page' %}" class="text-gray-300 hover:text-blue-400">Predict</a>
+                    <a href="{% url 'login' %}" class="text-gray-300 hover:text-blue-400">Login</a>
+                    <a href="{% url 'signup' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Doctors List Section -->
+    <section class="pt-20 pb-16 bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-white">Our Doctors</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Doctor Card 1 -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
+                    <div class="text-blue-400 text-4xl mb-4">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white">Dr. John Doe</h3>
+                    <p class="text-gray-300 mb-2">Cardiologist</p>
+                    <p class="text-gray-300">10+ years of experience</p>
+                </div>
+
+                <!-- Doctor Card 2 -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
+                    <div class="text-blue-400 text-4xl mb-4">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Jane Smith</h3>
+                    <p class="text-gray-300 mb-2">Pediatrician</p>
+                    <p class="text-gray-300">8+ years of experience</p>
+                </div>
+
+                <!-- Doctor Card 3 -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
+                    <div class="text-blue-400 text-4xl mb-4">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Michael Brown</h3>
+                    <p class="text-gray-300 mb-2">Orthopedic Surgeon</p>
+                    <p class="text-gray-300">15+ years of experience</p>
+                </div>
+
+                <!-- Doctor Card 4 -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
+                    <div class="text-blue-400 text-4xl mb-4">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Emily Davis</h3>
+                    <p class="text-gray-300 mb-2">Neurologist</p>
+                    <p class="text-gray-300">12+ years of experience</p>
+                </div>
+
+                <!-- Doctor Card 5 -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
+                    <div class="text-blue-400 text-4xl mb-4">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Robert Wilson</h3>
+                    <p class="text-gray-300 mb-2">Dermatologist</p>
+                    <p class="text-gray-300">9+ years of experience</p>
+                </div>
+
+                <!-- Doctor Card 6 -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
+                    <div class="text-blue-400 text-4xl mb-4">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Sarah Johnson</h3>
+                    <p class="text-gray-300 mb-2">Gynecologist</p>
+                    <p class="text-gray-300">7+ years of experience</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">MediCare</h4>
+                    <p class="text-gray-400">Compassionate Care, Advanced Medicine.</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="{% url 'about' %}" class="hover:text-white">About Us</a></li>
+                        <li><a href="{% url 'services' %}" class="hover:text-white">Services</a></li>
+                        <li><a href="{% url 'doctors' %}" class="hover:text-white">Doctors</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>123 Medical Drive</li>
+                        <li>Health City, HC 456</li>
+                        <li>Phone: (123) 456-7890</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Emergency</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>24/7 Emergency Care</li>
+                        <li>Ambulance: 911</li>
+                        <li>Helpline: (123) 456-7891</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 MediCare Hospital. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

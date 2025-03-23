@@ -1304,11 +1304,13 @@ def update_profile(request):
     profile = get_object_or_404(Profile, id=request.user.id)
     nurse = Nurse.objects.filter(user=profile).first()
     doctor = Doctor.objects.filter(user=profile).first()
+    patient = Patient.objects.filter(user=profile).first()
 
     if request.method == 'POST':
         profile_form = ProfileUpdateForm(request.POST, instance=profile)
         nurse_form = NurseUpdateForm(request.POST, instance=nurse) if nurse else None
         doctor_form = DoctorUpdateForm(request.POST, request.FILES, instance=doctor) if doctor else None
+        patient_form = PatientUpdateForm(request.POST, instance=patient) if patient else None
 
         forms_valid = True
         if profile_form.is_valid():
@@ -1325,6 +1327,12 @@ def update_profile(request):
                 else:
                     forms_valid = False
                     messages.error(request, "Error in doctor information.")
+            if patient_form:
+                if patient_form.is_valid():
+                    patient_form.save()
+                else:
+                    forms_valid = False
+                    messages.error(request, "Error in patient information.")
             
             if forms_valid:
                 messages.success(request, "Profile updated successfully!")
@@ -1335,11 +1343,13 @@ def update_profile(request):
         profile_form = ProfileUpdateForm(instance=profile)
         nurse_form = NurseUpdateForm(instance=nurse) if nurse else None
         doctor_form = DoctorUpdateForm(instance=doctor) if doctor else None
+        patient_form = PatientUpdateForm(instance=patient) if patient else None
 
     context = {
         'profile_form': profile_form,
         'nurse_form': nurse_form,
         'doctor_form': doctor_form,
+        'patient_form': patient_form,
     }
     return render(request, 'update_profile.html', context)
 
@@ -1453,4 +1463,14 @@ def process_leave(request, leave_id):
         send_mail(subject, message, 'noreply@hospital.com', [leave.user.email], fail_silently=True)
     
     return redirect('manage_leaves')
+
+
+def aboutus(request):
+    return render(request, 'aboutus.html')
+
+def services(request):
+    return render(request, 'services.html')
+
+def doctors(request):
+    return render(request,'doctors.html')
 

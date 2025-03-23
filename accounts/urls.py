@@ -82,6 +82,10 @@ urlpatterns = [
     path('view-leaves/', view_leaves, name='view_leaves'),
     path('manage-leaves/', manage_leaves, name='manage_leaves'),
     path('process-leave/<int:leave_id>/', process_leave, name='process_leave'),
+    
+    path('about/', aboutus, name='about'),
+    path('services/', services, name='services'),
+    path('doctors/', doctors, name='doctors'),
 
 ]
 

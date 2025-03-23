@@ -201,3 +201,17 @@ class LeaveApplicationForm(forms.ModelForm):
                 'rows': 4,
             }),
         }
+
+class PatientUpdateForm(forms.ModelForm):
+    phone_number = forms.CharField(
+        max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'mt-1 block w-full p-2 border border-gray-300 rounded-md text-black',
+            'pattern': '[0-9]{10}',
+            'title': 'Please enter a 10-digit phone number'
+        })
+    )
+    
+    class Meta:
+        model = Patient
+        fields = ['phone_number']

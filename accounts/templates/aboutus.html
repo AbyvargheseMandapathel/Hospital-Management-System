@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - MediCare Hospital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .custom-green {
+            color: #34D399;
+        }
+        
+        .bg-custom-green {
+            background-color: #34D399;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-800 p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-custom-green">MediCare Hospital</a>
+            <div class="space-x-6">
+                <a href="/" class="hover:text-custom-green">Home</a>
+                <a href="/about" class="hover:text-custom-green font-semibold text-custom-green">About Us</a>
+                <a href="/services" class="hover:text-custom-green">Services</a>
+                <a href="/doctors" class="hover:text-custom-green">Doctors</a>
+                <a href="/login" class="bg-blue-700 hover:bg-blue-300 text-white px-4 py-2 rounded-lg">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 fade-in">
+        <div class="max-w-4xl mx-auto">
+            <!-- Hero Section -->
+            <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-10">
+                <div class="p-8">
+                    <h1 class="text-3xl font-bold text-custom-green mb-4">About MediCare Hospital</h1>
+                    <p class="text-gray-300 text-lg mb-6">Providing Compassionate Care Since 2005</p>
+                    <p class="text-gray-400 mb-4">
+                        MediCare Hospital is dedicated to delivering exceptional healthcare services with a patient-centered approach. 
+                        Our state-of-the-art facilities, combined with our team of highly skilled medical professionals, 
+                        ensure that every patient receives the highest standard of care.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mission & Vision -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+                    <div class="text-custom-green text-4xl mb-4">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-4">Our Mission</h2>
+                    <p class="text-gray-400">
+                        To enhance the health and wellbeing of our community by providing accessible, 
+                        high-quality healthcare services with compassion, respect, and excellence.
+                    </p>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+                    <div class="text-custom-green text-4xl mb-4">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-4">Our Vision</h2>
+                    <p class="text-gray-400">
+                        To be the leading healthcare provider recognized for clinical excellence, 
+                        patient-centered care, and innovative medical practices.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Our Values -->
+            <div class="bg-gray-800 p-8 rounded-lg shadow-md mb-10">
+                <h2 class="text-2xl font-bold text-white mb-6">Our Core Values</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-custom-green text-3xl mb-3">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Compassion</h3>
+                        <p class="text-gray-400">We treat each patient with kindness, empathy, and respect.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-custom-green text-3xl mb-3">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Excellence</h3>
+                        <p class="text-gray-400">We strive for the highest standards in healthcare delivery.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-custom-green text-3xl mb-3">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Integrity</h3>
+                        <p class="text-gray-400">We act with honesty, transparency, and accountability.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Our History -->
+            <div class="bg-gray-800 p-8 rounded-lg shadow-md mb-10">
+                <h2 class="text-2xl font-bold text-white mb-4">Our History</h2>
+                <div class="space-y-4 text-gray-400">
+                    <p>
+                        Founded in 2005, MediCare Hospital began as a small clinic with a vision to provide quality healthcare to the local community. 
+                        Over the years, we have grown into a comprehensive medical center offering a wide range of specialized services.
+                    </p>
+                    <p>
+                        In 2010, we expanded our facilities to include state-of-the-art diagnostic equipment and specialized departments. 
+                        By 2015, we had established ourselves as a leading healthcare provider in the region, known for our exceptional patient care and medical expertise.
+                    </p>
+                    <p>
+                        Today, MediCare Hospital continues to evolve and adapt to the changing healthcare landscape, 
+                        embracing technological advancements and innovative medical practices to better serve our patients.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white p-6">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-custom-green">MediCare Hospital</h3>
+                    <p class="text-gray-400">Providing quality healthcare services since 2005.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-custom-green">Contact Us</h3>
+                    <p class="text-gray-400">123 Medical Drive<br>Healthcare City, HC 12345</p>
+                    <p class="text-gray-400 mt-2">Phone: (123) 456-7890<br>Email: info@medicare.com</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-custom-green">Quick Links</h3>
+                    <ul class="text-gray-400 space-y-2">
+                        <li><a href="/" class="hover:text-custom-green">Home</a></li>
+                        <li><a href="/services" class="hover:text-custom-green">Services</a></li>
+                        <li><a href="/doctors" class="hover:text-custom-green">Doctors</a></li>
+                        <li><a href="/login" class="hover:text-custom-green">Login</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; 2023 MediCare Hospital. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

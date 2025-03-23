@@ -87,7 +87,11 @@
                 <!-- Step 2 -->
                 <div id="step2" class="step hidden space-y-4">
                     <h2 class="text-2xl text-custom-green font-semibold mb-4">Step 2: Personal Details</h2>
-                    
+                    <p id="general-error" class="hidden text-red-500"></p>
+                    <p id="first-name-error" class="hidden text-red-500"></p>
+                    <p id="last-name-error" class="hidden text-red-500"></p>
+                    <p id="dob-error" class="hidden text-red-500"></p>
+                    <p id="email-error" class="hidden text-red-500"></p>
                     <div>
                         <label for="first_name" class="block text-sm font-medium text-gray-300">First Name</label>
                         <input type="text" id="first_name" name="first_name" 
@@ -121,7 +125,7 @@
                             class="w-1/2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200">
                             Back
                         </button>
-                        <button type="button" onclick="goToStep(3)" 
+                        <button type="button" onclick="validateStep2()" 
                             class="w-1/2 bg-custom-green hover-custom-green text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200">
                             Next
                         </button>
@@ -155,6 +159,7 @@
                             <label for="doctor_phone" class="block text-sm font-medium text-gray-300">Phone</label>
                             <input type="tel" id="doctor_phone" name="doctor_phone" 
                                 class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
+                                <div id="doctor-phone-error" class="text-red-500 text-sm hidden"></div>
                         </div>
 
                         <div>
@@ -187,6 +192,7 @@
                             <input type="tel" id="nurse_phone" name="nurse_phone" pattern="[0-9]{10}" 
                                 class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800"
                                 placeholder="Enter 10-digit phone number">
+                                <div id="nurse-phone-error" class="text-red-500 text-sm hidden"></div>
                         </div>
                     </div>
 
@@ -196,6 +202,7 @@
                             <label for="patient_phone" class="block text-sm font-medium text-gray-300">Phone</label>
                             <input type="tel" id="patient_phone" name="patient_phone" 
                                 class="mt-1 w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm focus:ring-custom-green focus:border-custom-green text-gray-300 placeholder-gray-500 bg-gray-800">
+                                <div id="phone-error" class="text-red-500 text-sm hidden"></div>
                         </div>
                     </div>
 
@@ -246,6 +253,72 @@
             goToStep(2);
         }
 
+        function validateStep2() {
+            const firstName = document.getElementById('first_name').value.trim();
+            const lastName = document.getElementById('last_name').value.trim();
+            const dob = document.getElementById('dob').value;
+            const email = document.getElementById('email').value.trim();
+        
+            const firstNameError = document.getElementById('first-name-error');
+            const lastNameError = document.getElementById('last-name-error');
+            const dobError = document.getElementById('dob-error');
+            const emailError = document.getElementById('email-error');
+            const generalError = document.getElementById('general-error'); // General error message
+        
+            let isValid = true;
+        
+            // Clear previous errors
+            firstNameError.classList.add('hidden');
+            lastNameError.classList.add('hidden');
+            dobError.classList.add('hidden');
+            emailError.classList.add('hidden');
+            generalError.classList.add('hidden');
+        
+            // Validate First Name
+            if (!firstName) {
+                firstNameError.textContent = "First Name is required";
+                firstNameError.classList.remove('hidden');
+                isValid = false;
+            }
+        
+            // Validate Last Name
+            if (!lastName) {
+                lastNameError.textContent = "Last Name is required";
+                lastNameError.classList.remove('hidden');
+                isValid = false;
+            }
+        
+            // Validate Date of Birth
+            if (!dob) {
+                dobError.textContent = "Date of Birth is required";
+                dobError.classList.remove('hidden');
+                isValid = false;
+            }
+        
+            // Validate Email
+            if (!email) {
+                emailError.textContent = "Email is required";
+                emailError.classList.remove('hidden');
+                isValid = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                emailError.textContent = "Invalid email format";
+                emailError.classList.remove('hidden');
+                isValid = false;
+            }
+        
+            // Show a general error message if any field is missing
+            if (!firstName || !lastName || !dob || !email) {
+                generalError.textContent = "Please fill all fields";
+                generalError.classList.remove('hidden');
+                isValid = false;
+            }
+        
+            if (isValid) {
+                goToStep(3);
+            }
+        }
+        
+
         // Restrict Date of Birth to Past Dates
         window.addEventListener("DOMContentLoaded", function () {
             const dobInput = document.getElementById("dob");
@@ -263,6 +336,63 @@
                 }
             });
         }
+
+        function validateDoctorPhone() {
+            const phoneInput = document.getElementById('doctor_phone');
+            const phoneValue = phoneInput.value.trim();
+            const phoneError = document.getElementById('doctor-phone-error');
+        
+            phoneError.classList.add('hidden'); // Hide previous error
+        
+            if (!/^\d{10}$/.test(phoneValue)) {
+                phoneError.textContent = "Phone number must be exactly 10 digits.";
+                phoneError.classList.remove('hidden');
+                return false;
+            }
+        
+            return true;
+        }
+        
+        // Attach the function to the input field to validate on input change
+        document.getElementById('doctor_phone').addEventListener('input', validateDoctorPhone);
+                function validateNursePhone() {
+                    const phoneInput = document.getElementById('nurse_phone');
+                    const phoneValue = phoneInput.value.trim();
+                    const phoneError = document.getElementById('nurse-phone-error');
+                
+                    phoneError.classList.add('hidden'); // Hide previous error
+                
+                    if (!/^\d{10}$/.test(phoneValue)) {
+                        phoneError.textContent = "Phone number must be exactly 10 digits.";
+                        phoneError.classList.remove('hidden');
+                        return false;
+                    }
+                
+                    return true;
+                }
+                
+                // Attach the function to the input field to validate on input change
+                document.getElementById('nurse_phone').addEventListener('input', validateNursePhone);
+        
+                
+                function validatePatientPhone() {
+                    const phoneInput = document.getElementById('patient_phone');
+                    const phoneValue = phoneInput.value.trim();
+                    const phoneError = document.getElementById('phone-error');
+                
+                    phoneError.classList.add('hidden'); // Hide previous error
+                
+                    if (!/^\d{10}$/.test(phoneValue)) {
+                        phoneError.textContent = "Phone number must be exactly 10 digits.";
+                        phoneError.classList.remove('hidden');
+                        return false;
+                    }
+                
+                    return true;
+                }
+                
+                // Attach the function to the input field to validate on input change
+                document.getElementById('patient_phone').addEventListener('input', validatePatientPhone);
 
         function toggleUserFields() {
             const userType = document.getElementById("user_type").value;

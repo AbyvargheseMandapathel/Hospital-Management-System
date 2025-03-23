@@ -43,7 +43,6 @@ def signup(request):
     if request.method == "POST":
         # Collect form data
         username = request.POST.get('username')
-        print(username)
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
         first_name = request.POST.get('first_name')
@@ -52,6 +51,24 @@ def signup(request):
         place = request.POST.get('place')
         dob = request.POST.get('dob')
         user_type = request.POST.get('user_type')
+
+        # Validate required fields
+        required_fields = {
+            'username': username,
+            'password': password,
+            'confirm_password': confirm_password,
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'dob': dob,
+            'user_type': user_type
+        }
+        
+        # Check for missing fields
+        missing_fields = [field for field, value in required_fields.items() if not value]
+        if missing_fields:
+            messages.error(request, f"Please fill in all required fields: {', '.join(missing_fields)}")
+            return redirect('signup')
 
         # Check if username or email already exists
         if User.objects.filter(username=username).exists():
@@ -65,7 +82,7 @@ def signup(request):
         # Check if passwords match  
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
-            return redirect("signup")
+            return redirect('signup')
         
         
         try:
@@ -105,8 +122,8 @@ def signup(request):
                 experience = request.POST.get('experience')
                 certificate_file = request.FILES.get('certificate_file')
 
-                if  not specialization or not experience:
-                    messages.error(request, "Phone number, specialization, and experience are required for doctors.")
+                if  not specialization or not experience or not doctor_phone or not certificate_file:
+                    messages.error(request, "Phone number, specialization, experience, and certificate are required for doctors.")
                     user.delete()
                     return redirect('signup')
 

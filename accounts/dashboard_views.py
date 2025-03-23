@@ -42,6 +42,7 @@ def nurse_dashboard(request):
 
 
 # views.py
+@login_required
 @user_passes_test(is_patient,login_url='login')
 @never_cache
 def patient_dashboard(request):

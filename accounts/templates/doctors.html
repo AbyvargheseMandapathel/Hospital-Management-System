@@ -16,6 +16,9 @@
                     <span class="text-2xl font-bold text-blue-400">MediCare</span>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home' %}" class="text-gray-300 hover:text-blue-400">Home</a>
+                    <a href="{% url 'about' %}" class="text-gray-300 hover:text-blue-400">About Us</a>
+                    <a href="{% url 'services' %}" class="text-gray-300 hover:text-blue-400">Services</a>
                     <a href="{% url 'predict_page' %}" class="text-gray-300 hover:text-blue-400">Predict</a>
                     <a href="{% url 'login' %}" class="text-gray-300 hover:text-blue-400">Login</a>
                     <a href="{% url 'signup' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign Up</a>
@@ -28,66 +31,54 @@
     <section class="pt-20 pb-16 bg-gray-900">
         <div class="max-w-7xl mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-white">Our Doctors</h2>
+            
+            <!-- Filter Section -->
+            <div class="mb-8 bg-gray-800 p-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-4 text-blue-400">Find a Doctor</h3>
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="specialization" class="block text-sm font-medium text-gray-300 mb-1">Specialization</label>
+                        <select id="specialization" name="specialization" class="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white">
+                            <option value="">All Specializations</option>
+                            {% for specialization in specializations %}
+                                <option value="{{ specialization }}">{{ specialization }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="md:col-span-2 flex items-end">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+                            <i class="fas fa-search mr-2"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Doctor Card 1 -->
+                {% for doctor in doctors %}
                 <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
                     <div class="text-blue-400 text-4xl mb-4">
                         <i class="fas fa-user-md"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Dr. John Doe</h3>
-                    <p class="text-gray-300 mb-2">Cardiologist</p>
-                    <p class="text-gray-300">10+ years of experience</p>
-                </div>
-
-                <!-- Doctor Card 2 -->
-                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
-                    <div class="text-blue-400 text-4xl mb-4">
-                        <i class="fas fa-user-md"></i>
+                    <h3 class="text-xl font-bold mb-3 text-white">Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h3>
+                    <p class="text-gray-300 mb-2">{{ doctor.specialization }}</p>
+                    <p class="text-gray-300 mb-2">{{ doctor.experience }} years of experience</p>
+                    {% if doctor.qualification %}
+                        <p class="text-gray-300 mb-2">{{ doctor.qualification }}</p>
+                    {% endif %}
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <h4 class="text-sm font-semibold text-blue-400 mb-2">Available Days:</h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% for availability in doctor.availabilities.all %}
+                                <span class="bg-gray-700 text-xs px-2 py-1 rounded">{{ availability.day }}</span>
+                            {% endfor %}
+                        </div>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Jane Smith</h3>
-                    <p class="text-gray-300 mb-2">Pediatrician</p>
-                    <p class="text-gray-300">8+ years of experience</p>
                 </div>
-
-                <!-- Doctor Card 3 -->
-                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
-                    <div class="text-blue-400 text-4xl mb-4">
-                        <i class="fas fa-user-md"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Michael Brown</h3>
-                    <p class="text-gray-300 mb-2">Orthopedic Surgeon</p>
-                    <p class="text-gray-300">15+ years of experience</p>
+                {% empty %}
+                <div class="col-span-3 text-center py-8">
+                    <p class="text-gray-400 text-lg">No doctors found matching your criteria.</p>
                 </div>
-
-                <!-- Doctor Card 4 -->
-                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
-                    <div class="text-blue-400 text-4xl mb-4">
-                        <i class="fas fa-user-md"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Emily Davis</h3>
-                    <p class="text-gray-300 mb-2">Neurologist</p>
-                    <p class="text-gray-300">12+ years of experience</p>
-                </div>
-
-                <!-- Doctor Card 5 -->
-                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
-                    <div class="text-blue-400 text-4xl mb-4">
-                        <i class="fas fa-user-md"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Robert Wilson</h3>
-                    <p class="text-gray-300 mb-2">Dermatologist</p>
-                    <p class="text-gray-300">9+ years of experience</p>
-                </div>
-
-                <!-- Doctor Card 6 -->
-                <div class="bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700">
-                    <div class="text-blue-400 text-4xl mb-4">
-                        <i class="fas fa-user-md"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Dr. Sarah Johnson</h3>
-                    <p class="text-gray-300 mb-2">Gynecologist</p>
-                    <p class="text-gray-300">7+ years of experience</p>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -97,50 +88,41 @@
         <div class="max-w-7xl mx-auto px-4 py-12">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                    <h4 class="text-xl font-bold mb-4">MediCare</h4>
-                    <p class="text-gray-400">Compassionate Care, Advanced Medicine.</p>
+                    <h3 class="text-xl font-bold mb-4 text-blue-400">MediCare Hospital</h3>
+                    <p class="text-gray-400">Providing quality healthcare services since 2005.</p>
                 </div>
                 <div>
-                    <h4 class="text-xl font-bold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="{% url 'about' %}" class="hover:text-white">About Us</a></li>
-                        <li><a href="{% url 'services' %}" class="hover:text-white">Services</a></li>
-                        <li><a href="{% url 'doctors' %}" class="hover:text-white">Doctors</a></li>
+                    <h3 class="text-xl font-bold mb-4 text-blue-400">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'home' %}" class="text-gray-400 hover:text-blue-400">Home</a></li>
+                        <li><a href="{% url 'about' %}" class="text-gray-400 hover:text-blue-400">About Us</a></li>
+                        <li><a href="{% url 'services' %}" class="text-gray-400 hover:text-blue-400">Services</a></li>
+                        <li><a href="{% url 'doctors' %}" class="text-gray-400 hover:text-blue-400">Doctors</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-xl font-bold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>123 Medical Drive</li>
-                        <li>Health City, HC 456</li>
-                        <li>Phone: (123) 456-7890</li>
-                    </ul>
+                    <h3 class="text-xl font-bold mb-4 text-blue-400">Contact</h3>
+                    <address class="text-gray-400 not-italic">
+                        123 Hospital Street<br>
+                        City, State 12345<br>
+                        Phone: (123) 456-7890<br>
+                        Email: info@medicare.com
+                    </address>
                 </div>
                 <div>
-                    <h4 class="text-xl font-bold mb-4">Emergency</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>24/7 Emergency Care</li>
-                        <li>Ambulance: 911</li>
-                        <li>Helpline: (123) 456-7891</li>
-                    </ul>
+                    <h3 class="text-xl font-bold mb-4 text-blue-400">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <div class="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
                 <p>&copy; 2023 MediCare Hospital. All rights reserved.</p>
             </div>
         </div>
     </footer>
-
-    <script>
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
 </body>
 </html>

@@ -8,7 +8,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 
 # Load dataset
-DATA_PATH = "dataset.csv"
+DATA_PATH = "datasetoutput.csv"
 data = pd.read_csv(DATA_PATH).dropna(axis=1)
 
 # Encode target variable

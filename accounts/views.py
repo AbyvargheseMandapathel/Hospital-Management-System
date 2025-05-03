@@ -969,7 +969,8 @@ symptoms_list = list(data.columns[:-1])  # Extract all symptom names
 @login_required
 def predict_page(request):
     """Renders the HTML page with symptom selection."""
-    return render(request, "predict.html", {"symptoms": symptoms_list})
+    sorted_symptoms = sorted(symptoms_list)
+    return render(request, "predict.html", {"symptoms": sorted_symptoms})
 
 @login_required
 def predict_disease(request):

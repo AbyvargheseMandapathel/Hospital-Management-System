@@ -168,9 +168,63 @@
     <!-- Recent Vitals Card -->
     <div class="recent-vitals-card">
       <h3 class="text-xl font-semibold text-gray-300 mb-4">Recent Vitals</h3>
-      <div class="text-center py-6">
-        <p class="text-gray-400">No vital records available</p>
-      </div>
+      {% if recent_vitals %}
+        <div class="space-y-4">
+          {% for vital in recent_vitals %}
+            <div class="bg-gray-800 p-4 rounded-lg">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-400 text-sm">
+                  <i class="fas fa-calendar-day mr-1"></i> {{ vital.recorded_at|date:"M j, Y" }}
+                </span>
+                <span class="text-blue-400 text-sm">
+                  <i class="fas fa-user-md mr-1"></i> Dr. {{ vital.appointment.doctor.user.get_full_name }}
+                </span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                {% if vital.blood_pressure %}
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Blood Pressure:</span>
+                  <span class="text-white font-medium">{{ vital.blood_pressure }}</span>
+                </div>
+                {% endif %}
+                {% if vital.heart_rate %}
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Heart Rate:</span>
+                  <span class="text-white font-medium">{{ vital.heart_rate }} bpm</span>
+                </div>
+                {% endif %}
+                {% if vital.temperature %}
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Temperature:</span>
+                  <span class="text-white font-medium">{{ vital.temperature }}°F</span>
+                </div>
+                {% endif %}
+                {% if vital.sugar_level %}
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Sugar Level:</span>
+                  <span class="text-white font-medium">{{ vital.sugar_level }} mg/dL</span>
+                </div>
+                {% endif %}
+                {% if vital.cholesterol_level %}
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Cholesterol:</span>
+                  <span class="text-white font-medium">{{ vital.cholesterol_level }} mg/dL</span>
+                </div>
+                {% endif %}
+              </div>
+              <div class="mt-2 text-right">
+                <a href="{% url 'vital_records' vital.appointment.id %}" class="text-blue-400 hover:text-blue-300 text-sm">
+                  <i class="fas fa-eye mr-1"></i>View Details
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-6">
+          <p class="text-gray-400">No vital records available</p>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -65,10 +65,16 @@ def patient_dashboard(request):
         patient=patient,
         date__gte=now
     ).order_by('date', 'start_time')
+    
+    # Get recent vital records for the patient
+    recent_vitals = VitalRecord.objects.filter(
+        appointment__patient=patient
+    ).order_by('-recorded_at')[:5]  # Get the 5 most recent vital records
 
     context = {
         'next_appointment': next_appointment,
         'upcoming_appointments': upcoming_appointments,
+        'recent_vitals': recent_vitals,
     }
     return render(request, 'patient_dashboard.html', context)
 
